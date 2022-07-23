@@ -1,3 +1,4 @@
+import copy
 import json
 import numpy as np
 
@@ -11,21 +12,42 @@ class Agent:
     move_to_action_idx = {value: key for key, value in action_idx_to_move.items()}
 
     def __init__(self, seed):
+        self.seed = seed
         self.policy = {}
-        self.rng = np.random.default_rng(seed)
+        self.rng = np.random.default_rng(self.seed)
 
-    def get_move(self, game):
+    def clone(self):
+        agent = Agent(self.seed + 5678)
+        agent.policy = copy.deepcopy(self.policy)
+        return agent
+
+    def get_move(self, game, epsilon=0.0, print_probs=False):
         hsh = game.state_hash()
 
         if hsh not in self.policy:
-            print("new state", hsh)
             self.policy[hsh] = np.ones(9) * 1 / 9.0
+            assert np.all(self.policy[hsh] >= 0.0)
+            assert np.abs(np.sum(self.policy[hsh]) - 1.0) < 1e-9
 
-        while True:
-            action_idx = np.argmax(self.sample_action(self.policy[hsh]))
-            move = self.action_idx_to_move[action_idx]
-            if game.is_empty(move[0], move[1]):
-                return move
+        p = self.rng.uniform()
+        probs = np.zeros_like(self.policy[hsh])
+        for row in range(3):
+            for col in range(3):
+                if game.is_empty(row, col):
+                    action_idx = self.move_to_action_idx[(row, col)]
+                    if p < epsilon:
+                        probs[action_idx] = 1.0
+                    else:
+                        probs[action_idx] = self.policy[hsh][action_idx]
+        if print_probs:
+            print(probs)
+        probs /= np.sum(probs)
+        if print_probs:
+            print(probs)
+        action_idx = self.sample_action(probs)
+        move = self.action_idx_to_move[action_idx]
+        assert game.is_empty(move[0], move[1])
+        return move
 
     def load_policy(self, fn):
         with open(fn, "r") as f:
@@ -35,7 +57,7 @@ class Agent:
         self.policy = policy
 
     def sample_action(self, probs):
-        return self.rng.multinomial(1, pvals=probs)
+        return np.argmax(self.rng.multinomial(1, pvals=probs))
 
     def save_policy(self, fn):
         policy = {}
