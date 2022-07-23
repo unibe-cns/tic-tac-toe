@@ -1,4 +1,5 @@
 import enum
+import hashlib
 
 
 class Game:
@@ -21,10 +22,6 @@ class Game:
         FieldState.CIRCLE: "o",
     }
 
-    str_to_field_state_map = {
-        value: key for key, value in field_state_to_str_map.items()
-    }
-
     def __init__(self):
         self.board = self.initial_board()
 
@@ -45,8 +42,8 @@ class Game:
             [self.FieldState.EMPTY, self.FieldState.EMPTY, self.FieldState.EMPTY],
         ]
 
-    def mark(self, row, col, marker):
-        self.board[row][col] = self.str_to_field_state_map[marker]
+    def mark(self, row, col, field_state):
+        self.board[row][col] = field_state
 
     def check_state(self):
 
@@ -93,4 +90,19 @@ class Game:
         elif x == -3:
             return self.GameState.CIRCLE_WON
 
+        x = 0
+        for idx in range(3):
+            x += self.board[idx][2 - idx]
+        if x == 3:
+            return self.GameState.SQUARE_WON
+        elif x == -3:
+            return self.GameState.CIRCLE_WON
+
         return self.GameState.RUNNING
+
+    def state_hash(self):
+        raw = "".join(str(self.board[row][col]) for row in range(3) for col in range(3))
+        return hashlib.md5(raw.encode("utf8")).hexdigest()
+
+    def is_empty(self, row, col):
+        return self.board[row][col] == self.FieldState.EMPTY
