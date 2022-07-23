@@ -46,15 +46,6 @@ class Game:
         self.board[row][col] = field_state
 
     def check_state(self):
-
-        # check draw
-        x = 0
-        for row in range(3):
-            for col in range(3):
-                x += abs(self.board[row][col])
-        if x == 9:
-            return self.GameState.DRAW
-
         # check win
         def check_win_condition(x):
             if x == 3:
@@ -97,6 +88,14 @@ class Game:
             return self.GameState.SQUARE_WON
         elif x == -3:
             return self.GameState.CIRCLE_WON
+
+        # check draw
+        x = 0
+        for row in range(3):
+            for col in range(3):
+                x += abs(self.board[row][col])
+        if x == 9:
+            return self.GameState.DRAW
 
         return self.GameState.RUNNING
 
