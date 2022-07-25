@@ -47,14 +47,6 @@ class Game:
 
     def check_state(self):
         # check win
-        def check_win_condition(x):
-            if x == 3:
-                print("Square won. exiting.")
-                exit()
-            elif x == -3:
-                print("Circle won. exiting.")
-                exit()
-
         for row in range(3):
             x = 0
             for col in range(3):
