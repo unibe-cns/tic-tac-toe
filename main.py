@@ -10,7 +10,9 @@ def update_policy(agent, history, r):
     gamma = 0.95
     T = len(history)
     for t, (hsh, move) in enumerate(history):
-        agent.policy[hsh][agent.move_to_action_idx[move]] += gamma ** (T - t - 1) * r * delta
+        agent.policy[hsh][agent.move_to_action_idx[move]] += (
+            gamma ** (T - t - 1) * r * delta
+        )
         agent.policy[hsh] -= np.min(agent.policy[hsh])
         agent.policy[hsh] /= np.sum(agent.policy[hsh])
         assert np.all(agent.policy[hsh] >= 0.0)
@@ -70,7 +72,7 @@ def self_play(agent, episodes, *, print_state=False):
         a = np.array(a)
         x = np.empty(len(a) // window_size)
         for i in range(len(x)):
-            x[i] = np.mean(a[i * window_size:(i + 1) * window_size])
+            x[i] = np.mean(a[i * window_size : (i + 1) * window_size])
         return x
 
     # plt.plot(moving_avg(history_result))
