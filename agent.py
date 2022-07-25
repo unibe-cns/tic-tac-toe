@@ -21,7 +21,7 @@ class Agent:
         agent.policy = copy.deepcopy(self.policy)
         return agent
 
-    def get_move(self, game, epsilon=0.0, print_probs=False):
+    def get_move(self, game, epsilon=0.0):
         hsh = game.state_hash()
 
         if hsh not in self.policy:
@@ -39,11 +39,7 @@ class Agent:
                         probs[action_idx] = 1.0
                     else:
                         probs[action_idx] = self.policy[hsh][action_idx]
-        if print_probs:
-            print(probs)
         probs /= np.sum(probs)
-        if print_probs:
-            print(probs)
         action_idx = self.sample_action(probs)
         move = self.action_idx_to_move[action_idx]
         assert game.is_empty(move[0], move[1])
