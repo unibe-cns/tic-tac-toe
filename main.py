@@ -62,12 +62,12 @@ def self_play(agent, episodes, rng, *, print_state=False):
             x[i] = np.mean(a[i * window_size : (i + 1) * window_size])
         return x
 
-    plt.plot(moving_avg(history_result))
-    # plt.plot(np.cumsum(np.ones_like(history_result) * 0.5), color='k')
-    # plt.plot(np.cumsum(history_result))
-    plt.ylim(0, 1)
-    plt.show()
-    # exit()
+    # plt.plot(moving_avg(history_result))
+    # # plt.plot(np.cumsum(np.ones_like(history_result) * 0.5), color='k')
+    # # plt.plot(np.cumsum(history_result))
+    # plt.ylim(0, 1)
+    # plt.show()
+    # # exit()
 
 
 def main():
@@ -78,14 +78,9 @@ def main():
     agent = Agent(seed=seed, epsilon=epsilon, alpha=alpha, gamma=gamma)
 
     rng = np.random.RandomState()
-    self_play(agent, 10_000, rng)
-    # self_play(agent, 2_000, rng)
-    # self_play(agent, 2_000, rng)
-    # self_play(agent, 2_000, rng)
-    # self_play(agent, 2_000, rng)
+    self_play(agent, 5_000, rng)
+    self_play(agent, 5_000, rng)
     print(len(agent.policy))
-    print(agent.policy)
-    # exit()
     # try:
     #     agent.load_policy("./policy.json")
     #     print('loaded policy')
@@ -113,7 +108,7 @@ def main():
                 print(state)
                 break
 
-    # agent.save_policy("./policy.json")
+    agent.save_policy("./policy.json")
 
 
 main()
