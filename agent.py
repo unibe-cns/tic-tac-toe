@@ -1,3 +1,4 @@
+import collections
 import copy
 import json
 import numpy as np
@@ -11,11 +12,12 @@ class Agent:
 
     move_to_action_idx = {value: key for key, value in action_idx_to_move.items()}
 
-    def __init__(self, seed):
+    def __init__(self, *, seed, epsilon, alpha, gamma):
         self.seed = seed
-        self.epsilon = 0.0
-        self.alpha = 0.05
-        self.policy = {}
+        self.epsilon = epsilon
+        self.alpha = alpha
+        self.gamma = gamma
+        self.policy = collections.defaultdict(self.uniform_policy)
         self.move_history = []
         self.rng = np.random.default_rng(self.seed)
 
@@ -23,9 +25,7 @@ class Agent:
         self.move_history = []
 
     def clone(self):
-        agent = Agent(self.seed + 5678)
-        agent.epsilon = self.epsilon
-        agent.alpha = self.alpha
+        agent = Agent(seed=self.seed + 5678, epsilon=self.epsilon, alpha=self.alpha, gamma=self.gamma)
         agent.policy = copy.deepcopy(self.policy)
         return agent
 
@@ -39,17 +39,6 @@ class Agent:
         return tuple(move)
 
     def get_move(self, game):
-        def uniform_policy():
-            policy = np.ones(9) * 1 / 9.0
-            policy /= np.sum(policy)
-            assert np.all(policy >= 0.0)
-            assert np.abs(np.sum(policy - 1.0) < 1e-9)
-            return policy
-
-        hsh = game.state_hash()
-        if hsh not in self.policy:
-            self.policy[hsh] = uniform_policy()
-
         p = self.rng.uniform()
         if p < self.epsilon:
             move = self.random_move(game)
@@ -69,26 +58,25 @@ class Agent:
     def policy_move(self, game):
         hsh = game.state_hash()
 
-        probs = np.ones_like(self.policy[hsh]) * -np.infty
+        values = self.policy[hsh].copy()
+        # mask occupied positions
         for row in range(3):
             for col in range(3):
-                if game.is_empty(row, col):
+                if not game.is_empty(row, col):
                     action_idx = self.move_to_action_idx[(row, col)]
-                    probs[action_idx] = self.policy[hsh][action_idx]
+                    values[action_idx] = -np.inf
 
-        max_prob = np.max(probs)
-        if sum(probs == max_prob) == 1:
-            action_idx = np.argmax(probs)
+        max_value = np.max(values)
+        if sum(values == max_value) == 1:
+            action_idx = np.argmax(values)
         else:
-            probs[probs != max_prob] = 0.0
+            probs = np.ones_like(values)
+            probs[values < max_value] = 0.0
             probs /= np.sum(probs)
-            action_idx = self.sample_action(probs)
+            action_idx = self.rng.choice(range(9), p=probs)
 
         move = self.action_idx_to_move[action_idx]
         return move
-
-    def sample_action(self, probs):
-        return self.rng.choice(range(9), p=probs)
 
     def save_policy(self, fn):
         policy = {}
@@ -98,9 +86,14 @@ class Agent:
         with open(fn, "w") as f:
             json.dump(policy, f)
 
-    def update_policy(self, final_reward):
-        gamma = 0.99
+    def uniform_policy(self):
+        policy = np.ones(9) * 1 / 9.0
+        policy /= np.sum(policy)
+        assert np.all(policy >= 0.0)
+        assert np.abs(np.sum(policy - 1.0) < 1e-9)
+        return policy
 
+    def update_policy(self, final_reward):
         for t, (hsh, move) in enumerate(self.move_history):
             action_idx = self.move_to_action_idx[move]
             if t == (len(self.move_history) - 1):
@@ -110,4 +103,4 @@ class Agent:
                 next_hsh, _next_move = self.move_history[t + 1]
                 max_Q = np.max(self.policy[next_hsh])
                 r = 0.0
-            self.policy[hsh][action_idx] += self.alpha * (r + gamma * max_Q - self.policy[hsh][action_idx])
+            self.policy[hsh][action_idx] += self.alpha * (r + self.gamma * max_Q - self.policy[hsh][action_idx])

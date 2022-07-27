@@ -71,16 +71,19 @@ def self_play(agent, episodes, rng, *, print_state=False):
 
 def main():
     seed = 1234
-    agent = Agent(seed)
-    agent.epsilon = 0.01
+    epsilon = 0.05
+    alpha = 0.1
+    gamma = 0.99
+    agent = Agent(seed=seed, epsilon=epsilon, alpha=alpha, gamma=gamma)
 
     rng = np.random.RandomState()
-    self_play(agent, 2_000, rng)
-    self_play(agent, 2_000, rng)
-    self_play(agent, 2_000, rng)
-    self_play(agent, 2_000, rng)
-    self_play(agent, 2_000, rng)
+    self_play(agent, 10_000, rng)
+    # self_play(agent, 2_000, rng)
+    # self_play(agent, 2_000, rng)
+    # self_play(agent, 2_000, rng)
+    # self_play(agent, 2_000, rng)
     print(len(agent.policy))
+    print(agent.policy)
     # exit()
     # try:
     #     agent.load_policy("./policy.json")
@@ -91,8 +94,8 @@ def main():
     while True:
         game = Game()
         while True:
-            row, col = input("place marker: ").split(",")
-            row, col = int(row), int(col)
+            move = agent.get_move(game)
+            row, col = move
             game.mark(row, col, game.FieldState.SQUARE)
             print(game)
             state = game.check_state()
@@ -100,14 +103,15 @@ def main():
                 print(state)
                 break
 
-            move = agent.get_move(game)
-            row, col = move
+            row, col = input("place marker: ").split(",")
+            row, col = int(row), int(col)
             game.mark(row, col, game.FieldState.CIRCLE)
             print(game)
             state = game.check_state()
             if state != Game.GameState.RUNNING:
                 print(state)
                 break
+
 
     # agent.save_policy("./policy.json")
 
