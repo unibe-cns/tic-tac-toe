@@ -5,61 +5,47 @@ from agent import Agent
 from game import Game
 
 
-def update_policy(agent, history, r):
-    delta = 0.1
-    gamma = 0.95
-    T = len(history)
-    for t, (hsh, move) in enumerate(history):
-        agent.policy[hsh][agent.move_to_action_idx[move]] += (
-            gamma ** (T - t - 1) * r * delta
-        )
-        agent.policy[hsh] -= np.min(agent.policy[hsh])
-        agent.policy[hsh] /= np.sum(agent.policy[hsh])
-        assert np.all(agent.policy[hsh] >= 0.0)
-        assert np.abs(np.sum(agent.policy[hsh]) - 1.0) < 1e-9
-
-
-def self_play(agent, episodes, *, print_state=False):
-
-    epsilon = 0.001
-
+def self_play(agent, episodes, rng, *, print_state=False):
     opponent = agent.clone()
+    opponent.alpha = 0.0
+    opponent.epsilon = 0.1
+    players = [agent, opponent]
+    markers = [Game.FieldState.SQUARE, Game.FieldState.CIRCLE]
+    order = [0, 1]
     history_result = []
-
     for episode in range(episodes):
+        rng.shuffle(order)
+        for p in players:
+            p.clear_move_history()
+
         game = Game()
-        history_agent = []
-        history_opponent = []
-        while True:
-            move = opponent.get_move(game, epsilon=epsilon)
-            history_opponent.append((game.state_hash(), move))
-            game.mark(move[0], move[1], game.FieldState.SQUARE)
+        done = False
+        while not done:
+            for player_idx in order:
+                move = players[player_idx].get_move(game)
+                game.mark(move[0], move[1], markers[player_idx])
 
-            if print_state:
-                print(game)
-            state = game.check_state()
-            if state != Game.GameState.RUNNING:
-                if state != Game.GameState.DRAW:
-                    update_policy(agent, history_agent, -1.0)
                 if print_state:
-                    print(state)
-                history_result.append(0)
-                break
+                    print(game)
 
-            move = agent.get_move(game, epsilon=epsilon)
-            history_agent.append((game.state_hash(), move))
-            game.mark(move[0], move[1], game.FieldState.CIRCLE)
+                state = game.check_state()
+                if state != Game.GameState.RUNNING:
+                    done = True
+                    break
 
-            if print_state:
-                print(game)
-            state = game.check_state()
-            if state != Game.GameState.RUNNING:
-                if state != Game.GameState.DRAW:
-                    update_policy(agent, history_agent, 1.0)
-                if print_state:
-                    print(state)
-                history_result.append(1)
-                break
+        if player_idx == 0:
+            history_result.append(1)
+        else:
+            history_result.append(0)
+
+        if state != Game.GameState.DRAW:
+            winner_idx = player_idx
+            for player_idx in order:
+                if player_idx == winner_idx:
+                    final_reward = 1.0
+                else:
+                    final_reward = -1.0
+                players[player_idx].update_policy(final_reward)
 
         if print_state:
             print()
@@ -75,22 +61,25 @@ def self_play(agent, episodes, *, print_state=False):
             x[i] = np.mean(a[i * window_size : (i + 1) * window_size])
         return x
 
-    # plt.plot(moving_avg(history_result))
+    plt.plot(moving_avg(history_result))
     # plt.plot(np.cumsum(np.ones_like(history_result) * 0.5), color='k')
     # plt.plot(np.cumsum(history_result))
-    # plt.ylim(0, 1)
-    # plt.show()
+    plt.ylim(0, 1)
+    plt.show()
     # exit()
 
 
 def main():
     seed = 1234
     agent = Agent(seed)
+    agent.epsilon = 0.01
 
-    self_play(agent, 5_000)
-    self_play(agent, 5_000)
-    self_play(agent, 5_000)
-    self_play(agent, 5_000)
+    rng = np.random.RandomState()
+    self_play(agent, 2_000, rng)
+    self_play(agent, 2_000, rng)
+    self_play(agent, 2_000, rng)
+    self_play(agent, 2_000, rng)
+    self_play(agent, 2_000, rng)
     print(len(agent.policy))
     # exit()
     # try:
