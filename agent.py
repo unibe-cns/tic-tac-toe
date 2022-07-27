@@ -25,7 +25,12 @@ class Agent:
         self.move_history = []
 
     def clone(self):
-        agent = Agent(seed=self.seed + 5678, epsilon=self.epsilon, alpha=self.alpha, gamma=self.gamma)
+        agent = Agent(
+            seed=self.seed + 5678,
+            epsilon=self.epsilon,
+            alpha=self.alpha,
+            gamma=self.gamma,
+        )
         agent.policy = copy.deepcopy(self.policy)
         return agent
 
@@ -103,4 +108,6 @@ class Agent:
                 next_hsh, _next_move = self.move_history[t + 1]
                 max_Q = np.max(self.policy[next_hsh])
                 r = 0.0
-            self.policy[hsh][action_idx] += self.alpha * (r + self.gamma * max_Q - self.policy[hsh][action_idx])
+            self.policy[hsh][action_idx] += self.alpha * (
+                r + self.gamma * max_Q - self.policy[hsh][action_idx]
+            )
