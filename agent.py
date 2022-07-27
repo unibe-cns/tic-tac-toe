@@ -17,7 +17,7 @@ class Agent:
         self.epsilon = epsilon
         self.alpha = alpha
         self.gamma = gamma
-        self.policy = collections.defaultdict(self.uniform_policy)
+        self.policy = collections.defaultdict(lambda: np.zeros(9))
         self.move_history = []
         self.rng = np.random.default_rng(self.seed)
 
@@ -90,13 +90,6 @@ class Agent:
 
         with open(fn, "w") as f:
             json.dump(policy, f)
-
-    def uniform_policy(self):
-        policy = np.ones(9) * 1 / 9.0
-        policy /= np.sum(policy)
-        assert np.all(policy >= 0.0)
-        assert np.abs(np.sum(policy - 1.0) < 1e-9)
-        return policy
 
     def update_policy(self, final_reward):
         for t, (hsh, move) in enumerate(self.move_history):

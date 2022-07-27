@@ -15,6 +15,7 @@ def self_play(agent, episodes, rng, *, print_state=False):
     history_result = []
     for episode in range(episodes):
         rng.shuffle(order)
+        rng.shuffle(markers)
         for p in players:
             p.clear_move_history()
 
