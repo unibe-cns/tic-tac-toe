@@ -43,6 +43,7 @@ class Game:
         ]
 
     def mark(self, row, col, field_state):
+        assert self.is_empty(row, col)
         self.board[row][col] = field_state
 
     def check_state(self):
@@ -52,34 +53,34 @@ class Game:
             for col in range(3):
                 x += self.board[row][col]
             if x == 3:
-                return self.GameState.SQUARE_WON
+                return (Game.GameState.SQUARE_WON, Game.FieldState.SQUARE)
             elif x == -3:
-                return self.GameState.CIRCLE_WON
+                return (Game.GameState.CIRCLE_WON, Game.FieldState.CIRCLE)
 
         for col in range(3):
             x = 0
             for row in range(3):
                 x += self.board[row][col]
             if x == 3:
-                return self.GameState.SQUARE_WON
+                return (Game.GameState.SQUARE_WON, Game.FieldState.SQUARE)
             elif x == -3:
-                return self.GameState.CIRCLE_WON
+                return (Game.GameState.CIRCLE_WON, Game.FieldState.CIRCLE)
 
         x = 0
         for idx in range(3):
             x += self.board[idx][idx]
         if x == 3:
-            return self.GameState.SQUARE_WON
+            return (Game.GameState.SQUARE_WON, Game.FieldState.SQUARE)
         elif x == -3:
-            return self.GameState.CIRCLE_WON
+            return (Game.GameState.CIRCLE_WON, Game.FieldState.CIRCLE)
 
         x = 0
         for idx in range(3):
             x += self.board[idx][2 - idx]
         if x == 3:
-            return self.GameState.SQUARE_WON
+            return (Game.GameState.SQUARE_WON, Game.FieldState.SQUARE)
         elif x == -3:
-            return self.GameState.CIRCLE_WON
+            return (Game.GameState.CIRCLE_WON, Game.FieldState.CIRCLE)
 
         # check draw
         x = 0
@@ -87,9 +88,9 @@ class Game:
             for col in range(3):
                 x += abs(self.board[row][col])
         if x == 9:
-            return self.GameState.DRAW
+            return (self.GameState.DRAW, None)
 
-        return self.GameState.RUNNING
+        return (self.GameState.RUNNING, None)
 
     def state_hash(self):
         raw = "".join(str(self.board[row][col]) for row in range(3) for col in range(3))

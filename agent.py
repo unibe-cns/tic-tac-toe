@@ -4,6 +4,9 @@ import json
 import numpy as np
 
 
+from game import Game
+
+
 class Agent:
 
     action_idx_to_move = {
@@ -17,12 +20,11 @@ class Agent:
         self.epsilon = epsilon
         self.alpha = alpha
         self.gamma = gamma
-        self.policy = collections.defaultdict(lambda: np.zeros(9))
-        self.move_history = []
+        self.policy = {
+            Game.FieldState.SQUARE: collections.defaultdict(lambda: np.zeros(9)),
+            Game.FieldState.CIRCLE: collections.defaultdict(lambda: np.zeros(9)),
+        }
         self.rng = np.random.default_rng(self.seed)
-
-    def clear_move_history(self):
-        self.move_history = []
 
     def clone(self):
         agent = Agent(
@@ -34,36 +36,29 @@ class Agent:
         agent.policy = copy.deepcopy(self.policy)
         return agent
 
-    def random_move(self, game):
-        possible_moves = []
-        for row in range(3):
-            for col in range(3):
-                if game.is_empty(row, col):
-                    possible_moves.append((row, col))
-        move = self.rng.choice(possible_moves)
-        return tuple(move)
-
-    def get_move(self, game):
+    def get_move(self, game, marker):
         p = self.rng.uniform()
         if p < self.epsilon:
             move = self.random_move(game)
         else:
-            move = self.policy_move(game)
+            move = self.policy_move(game, marker)
         assert game.is_empty(move[0], move[1])
-        self.move_history.append((game.state_hash(), move))
         return move
 
-    def load_policy(self, fn):
-        with open(fn, "r") as f:
-            policy = json.load(f)
-        for hsh in policy:
-            policy[hsh] = np.array(policy[hsh])
-        self.policy = policy
+    def n_boards_seen(self):
+        return len(self.policy[Game.FieldState.SQUARE]) + len(self.policy[Game.FieldState.CIRCLE])
 
-    def policy_move(self, game):
+    # def load_policy(self, fn):
+    #     with open(fn, "r") as f:
+    #         policy = json.load(f)
+    #     for hsh in policy:
+    #         policy[hsh] = np.array(policy[hsh])
+    #     self.policy = policy
+
+    def policy_move(self, game, marker):
         hsh = game.state_hash()
 
-        values = self.policy[hsh].copy()
+        values = self.policy[marker][hsh].copy()
         # mask occupied positions
         for row in range(3):
             for col in range(3):
@@ -83,24 +78,33 @@ class Agent:
         move = self.action_idx_to_move[action_idx]
         return move
 
-    def save_policy(self, fn):
-        policy = {}
-        for hsh in self.policy:
-            policy[hsh] = self.policy[hsh].tolist()
+    def random_move(self, game):
+        possible_moves = []
+        for row in range(3):
+            for col in range(3):
+                if game.is_empty(row, col):
+                    possible_moves.append((row, col))
+        move = self.rng.choice(possible_moves)
+        return tuple(move)
 
-        with open(fn, "w") as f:
-            json.dump(policy, f)
+    # def save_policy(self, fn):
+    #     policy = {}
+    #     for hsh in self.policy:
+    #         policy[hsh] = self.policy[hsh].tolist()
 
-    def update_policy(self, final_reward):
-        for t, (hsh, move) in enumerate(self.move_history):
+    #     with open(fn, "w") as f:
+    #         json.dump(policy, f)
+
+    def update_policy(self, final_reward, move_history, marker):
+        for t, (hsh, move) in enumerate(move_history):
             action_idx = self.move_to_action_idx[move]
-            if t == (len(self.move_history) - 1):
+            if t == (len(move_history) - 1):
                 max_Q = 0.0
                 r = final_reward
             else:
-                next_hsh, _next_move = self.move_history[t + 1]
-                max_Q = np.max(self.policy[next_hsh])
+                next_hsh, _next_move = move_history[t + 1]
+                max_Q = np.max(self.policy[marker][next_hsh])
                 r = 0.0
-            self.policy[hsh][action_idx] += self.alpha * (
-                r + self.gamma * max_Q - self.policy[hsh][action_idx]
+            self.policy[marker][hsh][action_idx] += self.alpha * (
+                r + self.gamma * max_Q - self.policy[marker][hsh][action_idx]
             )
