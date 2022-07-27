@@ -4,8 +4,8 @@ import numpy as np
 from agent import Agent
 from game import Game
 
-class Player:
 
+class Player:
     def __init__(self, agent, marker):
         self.agent = agent
         self.marker = marker
@@ -38,10 +38,16 @@ def duel(agent, opponent, episodes, rng, *, verbose=False):
 
         if rng.rand() < 0.5:
             agent_marker = Game.FieldState.SQUARE
-            players = [Player(agent, agent_marker), Player(opponent, Game.FieldState.CIRCLE)]
+            players = [
+                Player(agent, agent_marker),
+                Player(opponent, Game.FieldState.CIRCLE),
+            ]
         else:
             agent_marker = Game.FieldState.CIRCLE
-            players = [Player(opponent, Game.FieldState.SQUARE), Player(agent, agent_marker)]
+            players = [
+                Player(opponent, Game.FieldState.SQUARE),
+                Player(agent, agent_marker),
+            ]
 
         game = Game()
         done = False

@@ -46,7 +46,9 @@ class Agent:
         return move
 
     def n_boards_seen(self):
-        return len(self.policy[Game.FieldState.SQUARE]) + len(self.policy[Game.FieldState.CIRCLE])
+        return len(self.policy[Game.FieldState.SQUARE]) + len(
+            self.policy[Game.FieldState.CIRCLE]
+        )
 
     # def load_policy(self, fn):
     #     with open(fn, "r") as f:
