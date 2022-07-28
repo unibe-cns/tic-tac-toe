@@ -98,9 +98,10 @@ class Agent:
     #         json.dump(policy, f)
 
     def update_policy(self, final_reward, move_history, marker):
-        for t, (hsh, move) in enumerate(move_history):
-            action_idx = self.move_to_action_idx[move]
-            if t == (len(move_history) - 1):
+        T = len(move_history)
+        for t, (hsh, move) in reversed(list(zip(range(T), move_history))):
+            action_idx = Agent.move_to_action_idx[move]
+            if t == (T - 1):
                 max_Q = 0.0
                 r = final_reward
             else:
