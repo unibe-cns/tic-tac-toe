@@ -36,13 +36,13 @@ class Agent:
         agent.policy = copy.deepcopy(self.policy)
         return agent
 
-    def get_move(self, game, marker):
+    def get_move(self, board, marker):
         p = self.rng.uniform()
         if p < self.epsilon:
-            move = self.random_move(game)
+            move = self.random_move(board)
         else:
-            move = self.policy_move(game, marker)
-        assert game.is_empty(move[0], move[1])
+            move = self.policy_move(board, marker)
+        assert board.is_empty(move[0], move[1])
         return move
 
     def n_boards_seen(self):
@@ -57,14 +57,14 @@ class Agent:
     #         policy[hsh] = np.array(policy[hsh])
     #     self.policy = policy
 
-    def policy_move(self, game, marker):
-        hsh = game.state_hash()
+    def policy_move(self, board, marker):
+        hsh = board.state_hash()
 
         values = self.policy[marker][hsh].copy()
         # mask occupied positions
         for row in range(3):
             for col in range(3):
-                if not game.is_empty(row, col):
+                if not board.is_empty(row, col):
                     action_idx = Agent.move_to_action_idx[(row, col)]
                     values[action_idx] = -np.inf
 
@@ -80,11 +80,11 @@ class Agent:
         move = Agent.action_idx_to_move[action_idx]
         return move
 
-    def random_move(self, game):
+    def random_move(self, board):
         possible_moves = []
         for row in range(3):
             for col in range(3):
-                if game.is_empty(row, col):
+                if board.is_empty(row, col):
                     possible_moves.append((row, col))
         move = self.rng.choice(possible_moves)
         return tuple(move)

@@ -10,9 +10,9 @@ class Player:
         self.marker = marker
         self.move_history = []
 
-    def get_move(self, game):
-        move = self.agent.get_move(game, self.marker)
-        self.move_history.append((game.state_hash(), move))
+    def get_move(self, board):
+        move = self.agent.get_move(board, self.marker)
+        self.move_history.append((board.clone(), move))
         return move
 
     def update_policy(self, final_reward):
