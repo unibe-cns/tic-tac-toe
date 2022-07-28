@@ -48,3 +48,49 @@ class Board:
     def state_hash(self):
         raw = "".join(str(self.fields[row][col]) for row in range(3) for col in range(3))
         return hashlib.md5(raw.encode("utf8")).hexdigest()
+
+    def rotate_counter_clockwise(self, board):
+        rotated_board = Board()
+        for row in range(3):
+            for col in range(3):
+                rotated_board[2 - col][row] = board[row][col]
+        return rotated_board
+
+    def mirror_horizontally(self, board):
+        mirrored_board = Board()
+        mirrored_board.fields[0] = list(board.fields[2])
+        mirrored_board.fields[1] = list(board.fields[1])
+        mirrored_board.fields[2] = list(board.fields[0])
+        return mirrored_board
+
+    def board_symmetries(self, board):
+        boards = []
+        boards.append(self.rotate_counter_clockwise(board))
+        boards.append(self.rotate_counter_clockwise(boards[-1]))
+        boards.append(self.rotate_counter_clockwise(boards[-1]))
+        boards.append(self.mirror_horizontally(board))
+        boards.append(self.rotate_counter_clockwise(boards[-1]))
+        boards.append(self.rotate_counter_clockwise(boards[-1]))
+        boards.append(self.rotate_counter_clockwise(boards[-1]))
+        return boards
+
+    def rotate_move_counter_clockwise(self, move):
+        row = 2 - move[1]
+        col = move[0]
+        return (row, col)
+
+    def mirror_move_horizontally(self, move):
+        row = 2 - move[0]
+        col = move[1]
+        return (row, col)
+
+    def move_symmetries(self, move):
+        moves = []
+        moves.append(self.rotate_move_counter_clockwise(move))
+        moves.append(self.rotate_move_counter_clockwise(moves[-1]))
+        moves.append(self.rotate_move_counter_clockwise(moves[-1]))
+        moves.append(self.mirror_move_horizontally(move))
+        moves.append(self.rotate_move_counter_clockwise(moves[-1]))
+        moves.append(self.rotate_move_counter_clockwise(moves[-1]))
+        moves.append(self.rotate_move_counter_clockwise(moves[-1]))
+        return moves
