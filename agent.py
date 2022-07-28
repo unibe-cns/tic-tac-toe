@@ -21,8 +21,8 @@ class Agent:
         self.alpha = alpha
         self.gamma = gamma
         self.policy = {
-            Board.FieldState.SQUARE: collections.defaultdict(lambda: np.zeros(9)),
-            Board.FieldState.CIRCLE: collections.defaultdict(lambda: np.zeros(9)),
+            Board.FieldState.SQUARE: collections.defaultdict(lambda: np.ones(9)),
+            Board.FieldState.CIRCLE: collections.defaultdict(lambda: np.ones(9)),
         }
         self.rng = np.random.default_rng(self.seed)
 
