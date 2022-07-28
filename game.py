@@ -28,7 +28,7 @@ class Game:
 
     def __init__(self, agent1, agent2, rng):
         self.board = Board()
-        if rng.rand() < 0.5:
+        if rng.uniform() < 0.5:
             self.players = [
                 Player(agent1, Board.FieldState.SQUARE),
                 Player(agent2, Board.FieldState.CIRCLE),

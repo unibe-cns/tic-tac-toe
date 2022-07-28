@@ -76,7 +76,6 @@ def main():
     gamma = 0.99
     agent = Agent(seed=seed, epsilon=epsilon, alpha=alpha, gamma=gamma)
 
-    rng = np.random.RandomState(seed)
     self_play(agent, 5_000, rng)
     self_play(agent, 5_000, rng)
     self_play(agent, 5_000, rng)
@@ -84,6 +83,7 @@ def main():
     agent.epsilon = 0.0
     agent.alpha = 0.0
     duel(agent, Manual(), 10, rng, verbose=True)
+    rng = np.random.default_rng(seed)
 
 
 main()
