@@ -16,22 +16,22 @@ class Board:
     }
 
     def __init__(self):
-        self.board = self.initial_board()
+        self.fields = self.initial_state()
 
     def __repr__(self):
         s = ""
         for row in range(3):
             for col in range(3):
-                s += self.field_state_to_str_map[self.board[row][col]]
+                s += self.field_state_to_str_map[self.fields[row][col]]
                 if col < 2:
                     s += " "
             s += "\n"
         return s
 
     def __getitem__(self, row):
-        return self.board[row]
+        return self.fields[row]
 
-    def initial_board(self):
+    def initial_state(self):
         return [
             [Board.FieldState.EMPTY, Board.FieldState.EMPTY, Board.FieldState.EMPTY],
             [Board.FieldState.EMPTY, Board.FieldState.EMPTY, Board.FieldState.EMPTY],
@@ -39,12 +39,12 @@ class Board:
         ]
 
     def is_empty(self, row, col):
-        return self.board[row][col] == Board.FieldState.EMPTY
+        return self.fields[row][col] == Board.FieldState.EMPTY
 
     def mark(self, row, col, field_state):
         assert self.is_empty(row, col)
-        self.board[row][col] = field_state
+        self.fields[row][col] = field_state
 
     def state_hash(self):
-        raw = "".join(str(self.board[row][col]) for row in range(3) for col in range(3))
+        raw = "".join(str(self.fields[row][col]) for row in range(3) for col in range(3))
         return hashlib.md5(raw.encode("utf8")).hexdigest()
