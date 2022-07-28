@@ -65,7 +65,7 @@ class Agent:
         for row in range(3):
             for col in range(3):
                 if not game.is_empty(row, col):
-                    action_idx = self.move_to_action_idx[(row, col)]
+                    action_idx = Agent.move_to_action_idx[(row, col)]
                     values[action_idx] = -np.inf
 
         max_value = np.max(values)
@@ -77,7 +77,7 @@ class Agent:
             probs /= np.sum(probs)
             action_idx = self.rng.choice(range(9), p=probs)
 
-        move = self.action_idx_to_move[action_idx]
+        move = Agent.action_idx_to_move[action_idx]
         return move
 
     def random_move(self, game):
