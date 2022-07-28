@@ -4,7 +4,7 @@ import json
 import numpy as np
 
 
-from game import Game
+from game import Board
 
 
 class Agent:
@@ -21,8 +21,8 @@ class Agent:
         self.alpha = alpha
         self.gamma = gamma
         self.policy = {
-            Game.FieldState.SQUARE: collections.defaultdict(lambda: np.zeros(9)),
-            Game.FieldState.CIRCLE: collections.defaultdict(lambda: np.zeros(9)),
+            Board.FieldState.SQUARE: collections.defaultdict(lambda: np.zeros(9)),
+            Board.FieldState.CIRCLE: collections.defaultdict(lambda: np.zeros(9)),
         }
         self.rng = np.random.default_rng(self.seed)
 
@@ -46,8 +46,8 @@ class Agent:
         return move
 
     def n_boards_seen(self):
-        return len(self.policy[Game.FieldState.SQUARE]) + len(
-            self.policy[Game.FieldState.CIRCLE]
+        return len(self.policy[Board.FieldState.SQUARE]) + len(
+            self.policy[Board.FieldState.CIRCLE]
         )
 
     # def load_policy(self, fn):

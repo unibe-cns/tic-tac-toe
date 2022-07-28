@@ -1,5 +1,22 @@
 import enum
-import hashlib
+import numpy as np
+
+from board import Board
+
+
+class Player:
+    def __init__(self, agent, marker):
+        self.agent = agent
+        self.marker = marker
+        self.move_history = []
+
+    def get_move(self, game):
+        move = self.agent.get_move(game, self.marker)
+        self.move_history.append((game.state_hash(), move))
+        return move
+
+    def update_policy(self, final_reward):
+        self.agent.update_policy(final_reward, self.move_history, self.marker)
 
 
 class Game:
@@ -7,44 +24,22 @@ class Game:
     class GameState(enum.Enum):
         RUNNING = 0
         DRAW = 1
-        SQUARE_WON = 2
-        CIRCLE_WON = 3
+        WIN = 2
 
-    @enum.unique
-    class FieldState(enum.IntEnum):
-        EMPTY = 0
-        SQUARE = 1
-        CIRCLE = -1
-
-    field_state_to_str_map = {
-        FieldState.EMPTY: "_",
-        FieldState.SQUARE: "x",
-        FieldState.CIRCLE: "o",
-    }
-
-    def __init__(self):
-        self.board = self.initial_board()
-
-    def __repr__(self):
-        s = ""
-        for row in range(3):
-            for col in range(3):
-                s += self.field_state_to_str_map[self.board[row][col]]
-                if col < 2:
-                    s += " "
-            s += "\n"
-        return s
-
-    def initial_board(self):
-        return [
-            [self.FieldState.EMPTY, self.FieldState.EMPTY, self.FieldState.EMPTY],
-            [self.FieldState.EMPTY, self.FieldState.EMPTY, self.FieldState.EMPTY],
-            [self.FieldState.EMPTY, self.FieldState.EMPTY, self.FieldState.EMPTY],
-        ]
-
-    def mark(self, row, col, field_state):
-        assert self.is_empty(row, col)
-        self.board[row][col] = field_state
+    def __init__(self, agent1, agent2, rng):
+        self.board = Board()
+        if rng.rand() < 0.5:
+            self.players = [
+                Player(agent1, Board.FieldState.SQUARE),
+                Player(agent2, Board.FieldState.CIRCLE),
+            ]
+            self.assigned_markers = [Board.FieldState.SQUARE, Board.FieldState.CIRCLE]
+        else:
+            self.players = [
+                Player(agent2, Board.FieldState.SQUARE),
+                Player(agent1, Board.FieldState.CIRCLE),
+            ]
+            self.assigned_markers = [Board.FieldState.CIRCLE, Board.FieldState.SQUARE]
 
     def check_state(self):
         # check win
@@ -53,34 +48,34 @@ class Game:
             for col in range(3):
                 x += self.board[row][col]
             if x == 3:
-                return (Game.GameState.SQUARE_WON, Game.FieldState.SQUARE)
+                return (Game.GameState.WIN, Board.FieldState.SQUARE)
             elif x == -3:
-                return (Game.GameState.CIRCLE_WON, Game.FieldState.CIRCLE)
+                return (Game.GameState.WIN, Board.FieldState.CIRCLE)
 
         for col in range(3):
             x = 0
             for row in range(3):
                 x += self.board[row][col]
             if x == 3:
-                return (Game.GameState.SQUARE_WON, Game.FieldState.SQUARE)
+                return (Game.GameState.WIN, Board.FieldState.SQUARE)
             elif x == -3:
-                return (Game.GameState.CIRCLE_WON, Game.FieldState.CIRCLE)
+                return (Game.GameState.WIN, Board.FieldState.CIRCLE)
 
         x = 0
         for idx in range(3):
             x += self.board[idx][idx]
         if x == 3:
-            return (Game.GameState.SQUARE_WON, Game.FieldState.SQUARE)
+            return (Game.GameState.WIN, Board.FieldState.SQUARE)
         elif x == -3:
-            return (Game.GameState.CIRCLE_WON, Game.FieldState.CIRCLE)
+            return (Game.GameState.WIN, Board.FieldState.CIRCLE)
 
         x = 0
         for idx in range(3):
             x += self.board[idx][2 - idx]
         if x == 3:
-            return (Game.GameState.SQUARE_WON, Game.FieldState.SQUARE)
+            return (Game.GameState.WIN, Board.FieldState.SQUARE)
         elif x == -3:
-            return (Game.GameState.CIRCLE_WON, Game.FieldState.CIRCLE)
+            return (Game.GameState.WIN, Board.FieldState.CIRCLE)
 
         # check draw
         x = 0
@@ -92,9 +87,19 @@ class Game:
 
         return (self.GameState.RUNNING, None)
 
-    def state_hash(self):
-        raw = "".join(str(self.board[row][col]) for row in range(3) for col in range(3))
-        return hashlib.md5(raw.encode("utf8")).hexdigest()
+    def play(self, verbose=False):
+        done = False
+        while not done:
+            for p in self.players:
+                move = p.get_move(self.board)
+                self.board.mark(move[0], move[1], p.marker)
 
-    def is_empty(self, row, col):
-        return self.board[row][col] == self.FieldState.EMPTY
+                (state, winner) = self.check_state()
+                if state != Game.GameState.RUNNING:
+                    done = True
+                    if verbose:
+                        print(self.board)
+                        print(state, winner)
+                    break
+
+        return (state, winner)
