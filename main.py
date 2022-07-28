@@ -5,13 +5,27 @@ from agent import Agent
 from game import Game
 
 
-class Manual:
+class ManualAgent:
     def get_move(self, game, marker):
         print(game)
         row, col = input(f"place marker ({str(marker)}): ").split(",")
         row, col = int(row), int(col)
         assert game.is_empty(row, col)
         return (row, col)
+
+    def update_policy(self, _final_reward, _move_history, _marker):
+        pass
+
+
+class DeterministicAgent:
+    def __init__(self, moves):
+        self.moves = list(moves)
+        self.idx = 0
+
+    def get_move(self, game, marker):
+        move = self.moves[self.idx]
+        self.idx += 1
+        return move
 
     def update_policy(self, _final_reward, _move_history, _marker):
         pass
@@ -41,6 +55,8 @@ def duel(agent, opponent, episodes, rng, *, verbose=False):
                     final_reward = -1.0
                 p.update_policy(final_reward)
 
+        print(agent.policy)
+
         if episode > 0 and episode % 1000 == 0:
             print(episode)
 
@@ -59,31 +75,32 @@ def duel(agent, opponent, episodes, rng, *, verbose=False):
 
 def self_play(agent, episodes, rng):
     opponent = agent.clone()
+    opponent.epsilon = 0.1
     opponent.alpha = 0.0
     duel(agent, opponent, episodes, rng)
 
 
 def main():
-    # TODO update Q values backwards from final state
-    # TODO policy gradient as an alternative
-    # TODO draw: call update policy with final_reward = 0.0
-    # TODO in update, rotate board to cover symmetric states
     # TODO after update, offline replay (small alpha?)
+    # TODO policy gradient as an alternative
 
     seed = 1234
-    epsilon = 0.05
-    alpha = 0.05
+    epsilon = 0.01
+    alpha = 0.5
     gamma = 0.99
     agent = Agent(seed=seed, epsilon=epsilon, alpha=alpha, gamma=gamma)
 
-    self_play(agent, 5_000, rng)
-    self_play(agent, 5_000, rng)
-    self_play(agent, 5_000, rng)
-    print(agent.n_boards_seen())
-    agent.epsilon = 0.0
-    agent.alpha = 0.0
-    duel(agent, Manual(), 10, rng, verbose=True)
     rng = np.random.default_rng(seed)
+    # self_play(agent, 10_000, rng)
+    # self_play(agent, 5_000, rng)
+    # self_play(agent, 5_000, rng)
+    # duel(agent, DeterministicAgent([(2, 2), (1, 1), (0, 0)]), 10, rng, verbose=True)
+    duel(agent, ManualAgent(), 10, rng, verbose=True)
+
+    # print(agent.n_boards_seen())
+    # agent.epsilon = 0.0
+    # agent.alpha = 0.0
+    # duel(agent, ManualAgent(), 10, rng, verbose=True)
 
 
 main()
