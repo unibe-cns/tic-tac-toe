@@ -99,15 +99,28 @@ class Agent:
 
     def update_policy(self, final_reward, move_history, marker):
         T = len(move_history)
-        for t, (hsh, move) in reversed(list(zip(range(T), move_history))):
-            action_idx = Agent.move_to_action_idx[move]
-            if t == (T - 1):
-                max_Q = 0.0
-                r = final_reward
-            else:
-                next_hsh, _next_move = move_history[t + 1]
-                max_Q = np.max(self.policy[marker][next_hsh])
-                r = 0.0
-            self.policy[marker][hsh][action_idx] += self.alpha * (
-                r + self.gamma * max_Q - self.policy[marker][hsh][action_idx]
-            )
+        for t, (board, move) in reversed(list(zip(range(T), move_history))):
+            considered_hashes = set()
+            for (board_symmetry, move_symmetry) in zip(
+                Board.board_symmetries(), Board.move_symmetries()
+            ):
+                b = board_symmetry(board)
+                m = move_symmetry(move)
+
+                hsh = b.state_hash()
+                if hsh in considered_hashes:
+                    continue
+                considered_hashes.add(hsh)
+
+                action_idx = Agent.move_to_action_idx[m]
+                if t == (T - 1):
+                    max_Q = 0.0
+                    r = final_reward
+                else:
+                    next_board, _next_move = move_history[t + 1]
+                    next_hsh = board_symmetry(next_board).state_hash()
+                    max_Q = np.max(self.policy[marker][next_hsh])
+                    r = 0.0
+                self.policy[marker][hsh][action_idx] += self.alpha * (
+                    r + self.gamma * max_Q - self.policy[marker][hsh][action_idx]
+                )
