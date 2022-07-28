@@ -1,3 +1,4 @@
+import copy
 import enum
 import hashlib
 
@@ -31,6 +32,11 @@ class Board:
     def __getitem__(self, row):
         return self.fields[row]
 
+    def clone(self):
+        board = Board()
+        board.fields = copy.deepcopy(self.fields)
+        return board
+
     def initial_state(self):
         return [
             [Board.FieldState.EMPTY, Board.FieldState.EMPTY, Board.FieldState.EMPTY],
@@ -46,51 +52,65 @@ class Board:
         self.fields[row][col] = field_state
 
     def state_hash(self):
-        raw = "".join(str(self.fields[row][col]) for row in range(3) for col in range(3))
+        raw = "".join(
+            str(self.fields[row][col]) for row in range(3) for col in range(3)
+        )
         return hashlib.md5(raw.encode("utf8")).hexdigest()
 
-    def rotate_counter_clockwise(self, board):
+    @staticmethod
+    def rotate_counter_clockwise(board):
         rotated_board = Board()
         for row in range(3):
             for col in range(3):
                 rotated_board[2 - col][row] = board[row][col]
         return rotated_board
 
-    def mirror_horizontally(self, board):
+    @staticmethod
+    def mirror_horizontally(board):
         mirrored_board = Board()
         mirrored_board.fields[0] = list(board.fields[2])
         mirrored_board.fields[1] = list(board.fields[1])
         mirrored_board.fields[2] = list(board.fields[0])
         return mirrored_board
 
-    def board_symmetries(self, board):
-        boards = []
-        boards.append(self.rotate_counter_clockwise(board))
-        boards.append(self.rotate_counter_clockwise(boards[-1]))
-        boards.append(self.rotate_counter_clockwise(boards[-1]))
-        boards.append(self.mirror_horizontally(board))
-        boards.append(self.rotate_counter_clockwise(boards[-1]))
-        boards.append(self.rotate_counter_clockwise(boards[-1]))
-        boards.append(self.rotate_counter_clockwise(boards[-1]))
-        return boards
+    @staticmethod
+    def board_symmetries():
+        symmetries = []
+        rcc = Board.rotate_counter_clockwise
+        mh = Board.mirror_horizontally
+        symmetries.append(lambda b: b)
+        symmetries.append(lambda b: rcc(b))
+        symmetries.append(lambda b: rcc(rcc(b)))
+        symmetries.append(lambda b: rcc(rcc(rcc(b))))
+        symmetries.append(lambda b: mh(b))
+        symmetries.append(lambda b: rcc(mh(b)))
+        symmetries.append(lambda b: rcc(rcc(mh(b))))
+        symmetries.append(lambda b: rcc(rcc(rcc(mh(b)))))
+        return symmetries
 
-    def rotate_move_counter_clockwise(self, move):
+    @staticmethod
+    def rotate_move_counter_clockwise(move):
         row = 2 - move[1]
         col = move[0]
         return (row, col)
 
-    def mirror_move_horizontally(self, move):
+    @staticmethod
+    def mirror_move_horizontally(move):
         row = 2 - move[0]
         col = move[1]
         return (row, col)
 
-    def move_symmetries(self, move):
-        moves = []
-        moves.append(self.rotate_move_counter_clockwise(move))
-        moves.append(self.rotate_move_counter_clockwise(moves[-1]))
-        moves.append(self.rotate_move_counter_clockwise(moves[-1]))
-        moves.append(self.mirror_move_horizontally(move))
-        moves.append(self.rotate_move_counter_clockwise(moves[-1]))
-        moves.append(self.rotate_move_counter_clockwise(moves[-1]))
-        moves.append(self.rotate_move_counter_clockwise(moves[-1]))
-        return moves
+    @staticmethod
+    def move_symmetries():
+        symmetries = []
+        rmcc = Board.rotate_move_counter_clockwise
+        mmh = Board.mirror_move_horizontally
+        symmetries.append(lambda m: m)
+        symmetries.append(lambda m: rmcc(m))
+        symmetries.append(lambda m: rmcc(rmcc(m)))
+        symmetries.append(lambda m: rmcc(rmcc(rmcc(m))))
+        symmetries.append(lambda m: mmh(m))
+        symmetries.append(lambda m: rmcc(mmh(m)))
+        symmetries.append(lambda m: rmcc(rmcc(mmh(m))))
+        symmetries.append(lambda m: rmcc(rmcc(rmcc(mmh(m)))))
+        return symmetries
