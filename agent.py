@@ -20,10 +20,7 @@ class Agent:
         self.epsilon = epsilon
         self.alpha = alpha
         self.gamma = gamma
-        self.policy = {
-            Board.FieldState.CROSS: collections.defaultdict(lambda: np.zeros(9)),
-            Board.FieldState.CIRCLE: collections.defaultdict(lambda: np.zeros(9)),
-        }
+        self.reset_policy()
         self.rng = np.random.default_rng(self.seed)
 
     def clone(self):
@@ -53,10 +50,7 @@ class Agent:
     def load_policy(self, fn):
         with open(fn, "r") as f:
             policy = json.load(f)
-        self.policy = {
-            Board.FieldState.CROSS: collections.defaultdict(lambda: np.ones(9)),
-            Board.FieldState.CIRCLE: collections.defaultdict(lambda: np.ones(9)),
-        }
+        self.reset_policy()
         for str_marker in policy:
             for key in policy[str_marker]:
                 self.policy[Board.str_value_to_state[str_marker]][key] = np.array(
