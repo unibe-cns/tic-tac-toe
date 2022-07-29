@@ -24,7 +24,7 @@ class Board:
         s = ""
         for row in range(3):
             for col in range(3):
-                s += self.field_state_to_str_map[self.fields[row][col]]
+                s += Board.field_state_to_str_map[self.fields[row][col]]
                 if col < 2:
                     s += " "
             s += "\n"

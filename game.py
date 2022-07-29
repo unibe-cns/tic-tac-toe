@@ -83,9 +83,9 @@ class Game:
             for col in range(3):
                 x += abs(self.board[row][col])
         if x == 9:
-            return (self.GameState.DRAW, None)
+            return (Game.GameState.DRAW, None)
 
-        return (self.GameState.RUNNING, None)
+        return (Game.GameState.RUNNING, None)
 
     def play(self, verbose=False):
         done = False
