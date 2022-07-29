@@ -117,24 +117,27 @@ class Agent:
             for (board_symmetry, move_symmetry) in zip(
                 Board.board_symmetries(), Board.move_symmetries()
             ):
-                b = board_symmetry(board)
-                m = move_symmetry(move)
+                rotated_board = board_symmetry(board)
+                rotated_move = move_symmetry(move)
 
-                key = b.to_str()
-                if key in considered_keys:
+                rotated_key = rotated_board.to_str()
+                if rotated_key in considered_keys:
                     continue
-                considered_keys.add(key)
+                considered_keys.add(rotated_key)
 
-                action_idx = Agent.move_to_action_idx[m]
+                action_idx = Agent.move_to_action_idx[rotated_move]
                 if t == (T - 1):
-                    max_Q = 0.0
                     r = final_reward
+                    max_Q = 0.0
                 else:
+                    r = 0.0
                     next_key, _next_move = move_history[t + 1]
                     next_board.from_str(next_key)
-                    next_key = board_symmetry(next_board).to_str()
-                    max_Q = np.max(self.policy[marker][next_key])
-                    r = 0.0
-                self.policy[marker][key][action_idx] += self.alpha * (
-                    r + self.gamma * max_Q - self.policy[marker][key][action_idx]
+                    next_rotated_board = board_symmetry(next_board)
+                    next_rotated_key = next_rotated_board.to_str()
+                    max_Q = np.max(self.policy[marker][next_rotated_key])
+                self.policy[marker][rotated_key][action_idx] += self.alpha * (
+                    r
+                    + self.gamma * max_Q
+                    - self.policy[marker][rotated_key][action_idx]
                 )
