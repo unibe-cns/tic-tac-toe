@@ -59,7 +59,9 @@ class Agent:
         }
         for str_marker in policy:
             for key in policy[str_marker]:
-                self.policy[Board.str_value_to_state[str_marker]][key] = np.array(policy[str_marker][key])
+                self.policy[Board.str_value_to_state[str_marker]][key] = np.array(
+                    policy[str_marker][key]
+                )
 
     def policy_move(self, board, marker):
         key = board.to_str()

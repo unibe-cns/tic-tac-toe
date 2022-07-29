@@ -59,7 +59,9 @@ class Board:
                 self.fields[row][col] = Board.str_value_to_state[s[row * 3 + col]]
 
     def to_str(self):
-        return ",".join(f"{self.fields[row][col].value}" for row in range(3) for col in range(3))
+        return ",".join(
+            f"{self.fields[row][col].value}" for row in range(3) for col in range(3)
+        )
 
     @staticmethod
     def rotate_counter_clockwise(board):
