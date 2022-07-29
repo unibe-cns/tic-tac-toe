@@ -55,8 +55,6 @@ def duel(agent, opponent, episodes, rng, *, verbose=False):
                     final_reward = -1.0
                 p.update_policy(final_reward)
 
-        print(agent.policy)
-
         if episode > 0 and episode % 1000 == 0:
             print(episode)
 
@@ -73,10 +71,12 @@ def duel(agent, opponent, episodes, rng, *, verbose=False):
     plt.show()
 
 
-def self_play(agent, episodes, rng):
+def self_play(agent, episodes, rng, *, opponent_epsilon, reset_opponent_policy=False):
     opponent = agent.clone()
-    opponent.epsilon = 0.1
+    opponent.epsilon = opponent_epsilon
     opponent.alpha = 0.0
+    if reset_opponent_policy:
+        opponent.reset_policy()
     duel(agent, opponent, episodes, rng)
 
 
@@ -87,20 +87,17 @@ def main():
     seed = 1234
     epsilon = 0.01
     alpha = 0.5
-    gamma = 0.99
+    gamma = 0.95
     agent = Agent(seed=seed, epsilon=epsilon, alpha=alpha, gamma=gamma)
+    # try:
+    #     agent.load_policy('./policy.json')
+    # except FileNotFoundError:
+    #     pass
 
     rng = np.random.default_rng(seed)
-    # self_play(agent, 10_000, rng)
-    # self_play(agent, 5_000, rng)
-    # self_play(agent, 5_000, rng)
-    # duel(agent, DeterministicAgent([(2, 2), (1, 1), (0, 0)]), 10, rng, verbose=True)
-    duel(agent, ManualAgent(), 10, rng, verbose=True)
-
-    # print(agent.n_boards_seen())
-    # agent.epsilon = 0.0
-    # agent.alpha = 0.0
-    # duel(agent, ManualAgent(), 10, rng, verbose=True)
+    self_play(agent, 10_000, rng, opponent_epsilon=1.0)
+    duel(agent, ManualAgent(), 5, rng, verbose=True)
+    # agent.save_policy('./policy.json')
 
 
 main()

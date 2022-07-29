@@ -12,7 +12,7 @@ class Player:
 
     def get_move(self, board):
         move = self.agent.get_move(board, self.marker)
-        self.move_history.append((board.clone(), move))
+        self.move_history.append((board.to_str(), move))
         return move
 
     def update_policy(self, final_reward):

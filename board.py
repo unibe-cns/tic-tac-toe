@@ -1,6 +1,5 @@
 import copy
 import enum
-import hashlib
 
 
 class Board:
@@ -9,6 +8,8 @@ class Board:
         EMPTY = 0
         SQUARE = 1
         CIRCLE = -1
+
+    str_value_to_state = {str(s.value): s for s in FieldState}
 
     field_state_to_str_map = {
         FieldState.EMPTY: "_",
@@ -51,11 +52,14 @@ class Board:
         assert self.is_empty(row, col)
         self.fields[row][col] = field_state
 
-    def state_hash(self):
-        raw = "".join(
-            str(self.fields[row][col]) for row in range(3) for col in range(3)
-        )
-        return hashlib.md5(raw.encode("utf8")).hexdigest()
+    def from_str(self, s):
+        s = s.split(",")
+        for row in range(3):
+            for col in range(3):
+                self.fields[row][col] = Board.str_value_to_state[s[row * 3 + col]]
+
+    def to_str(self):
+        return ",".join(f"{self.fields[row][col].value}" for row in range(3) for col in range(3))
 
     @staticmethod
     def rotate_counter_clockwise(board):
