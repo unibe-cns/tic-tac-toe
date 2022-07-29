@@ -21,7 +21,7 @@ class Agent:
         self.alpha = alpha
         self.gamma = gamma
         self.policy = {
-            Board.FieldState.SQUARE: collections.defaultdict(lambda: np.zeros(9)),
+            Board.FieldState.CROSS: collections.defaultdict(lambda: np.zeros(9)),
             Board.FieldState.CIRCLE: collections.defaultdict(lambda: np.zeros(9)),
         }
         self.rng = np.random.default_rng(self.seed)
@@ -46,7 +46,7 @@ class Agent:
         return move
 
     def n_boards_seen(self):
-        return len(self.policy[Board.FieldState.SQUARE]) + len(
+        return len(self.policy[Board.FieldState.CROSS]) + len(
             self.policy[Board.FieldState.CIRCLE]
         )
 
@@ -54,7 +54,7 @@ class Agent:
         with open(fn, "r") as f:
             policy = json.load(f)
         self.policy = {
-            Board.FieldState.SQUARE: collections.defaultdict(lambda: np.ones(9)),
+            Board.FieldState.CROSS: collections.defaultdict(lambda: np.ones(9)),
             Board.FieldState.CIRCLE: collections.defaultdict(lambda: np.ones(9)),
         }
         for str_marker in policy:
@@ -99,7 +99,7 @@ class Agent:
 
     def reset_policy(self):
         self.policy = {
-            Board.FieldState.SQUARE: collections.defaultdict(lambda: np.zeros(9)),
+            Board.FieldState.CROSS: collections.defaultdict(lambda: np.zeros(9)),
             Board.FieldState.CIRCLE: collections.defaultdict(lambda: np.zeros(9)),
         }
 

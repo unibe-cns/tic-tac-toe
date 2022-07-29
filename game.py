@@ -30,16 +30,16 @@ class Game:
         self.board = Board()
         if rng.uniform() < 0.5:
             self.players = [
-                Player(agent1, Board.FieldState.SQUARE),
+                Player(agent1, Board.FieldState.CROSS),
                 Player(agent2, Board.FieldState.CIRCLE),
             ]
-            self.assigned_markers = [Board.FieldState.SQUARE, Board.FieldState.CIRCLE]
+            self.assigned_markers = [Board.FieldState.CROSS, Board.FieldState.CIRCLE]
         else:
             self.players = [
-                Player(agent2, Board.FieldState.SQUARE),
+                Player(agent2, Board.FieldState.CROSS),
                 Player(agent1, Board.FieldState.CIRCLE),
             ]
-            self.assigned_markers = [Board.FieldState.CIRCLE, Board.FieldState.SQUARE]
+            self.assigned_markers = [Board.FieldState.CIRCLE, Board.FieldState.CROSS]
 
     def check_state(self):
         # check win
@@ -48,7 +48,7 @@ class Game:
             for col in range(3):
                 x += self.board[row][col]
             if x == 3:
-                return (Game.GameState.WIN, Board.FieldState.SQUARE)
+                return (Game.GameState.WIN, Board.FieldState.CROSS)
             elif x == -3:
                 return (Game.GameState.WIN, Board.FieldState.CIRCLE)
 
@@ -57,7 +57,7 @@ class Game:
             for row in range(3):
                 x += self.board[row][col]
             if x == 3:
-                return (Game.GameState.WIN, Board.FieldState.SQUARE)
+                return (Game.GameState.WIN, Board.FieldState.CROSS)
             elif x == -3:
                 return (Game.GameState.WIN, Board.FieldState.CIRCLE)
 
@@ -65,7 +65,7 @@ class Game:
         for idx in range(3):
             x += self.board[idx][idx]
         if x == 3:
-            return (Game.GameState.WIN, Board.FieldState.SQUARE)
+            return (Game.GameState.WIN, Board.FieldState.CROSS)
         elif x == -3:
             return (Game.GameState.WIN, Board.FieldState.CIRCLE)
 
@@ -73,7 +73,7 @@ class Game:
         for idx in range(3):
             x += self.board[idx][2 - idx]
         if x == 3:
-            return (Game.GameState.WIN, Board.FieldState.SQUARE)
+            return (Game.GameState.WIN, Board.FieldState.CROSS)
         elif x == -3:
             return (Game.GameState.WIN, Board.FieldState.CIRCLE)
 

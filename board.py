@@ -6,14 +6,14 @@ class Board:
     @enum.unique
     class FieldState(enum.IntEnum):
         EMPTY = 0
-        SQUARE = 1
+        CROSS = 1
         CIRCLE = -1
 
     str_value_to_state = {str(s.value): s for s in FieldState}
 
     field_state_to_str_map = {
         FieldState.EMPTY: "_",
-        FieldState.SQUARE: "x",
+        FieldState.CROSS: "x",
         FieldState.CIRCLE: "o",
     }
 
