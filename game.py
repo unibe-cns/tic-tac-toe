@@ -91,7 +91,12 @@ class Game:
         done = False
         while not done:
             for p in self.players:
-                move = p.get_move(self.board)
+                # check if player returns legal move
+                move_done = False
+                while not move_done:
+                    move = p.get_move(self.board)
+                    if move is not None:
+                        break
                 self.board.mark(move[0], move[1], p.marker)
 
                 (state, winner) = self.check_state()
