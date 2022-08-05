@@ -1,31 +1,69 @@
+import sys
+
 import matplotlib.pyplot as plt
 import numpy as np
 
 from agent import Agent
 from game import Game
+import gui
 
-import PySimpleGUI as sg
+GUI = True
+
+
+class GuiAgent:
+
+    def __init__(self, gui):
+
+        self.gui = gui
+
+    def get_move(self, board, marker):
+        print(board)
+
+        # player_input = input(f"place marker ({str(marker)}): ").split(",")
+        self.gui.update_game_state(board)
+
+        player_input = self.gui.listen_input()
+        # check whether input is row, col
+        try:
+            row, col = player_input
+        except:
+            self.gui.update_top_message("Please choose a marker position in x=[0,1,2], y=[0,1,2]")
+            return None
+        row, col = int(row), int(col)
+
+        # we check for more exceptions
+        if not row in range(3) or not col in range(3):
+            self.gui.update_top_message("Please choose a marker position in x=[0,1,2], y=[0,1,2]")
+            return None
+        elif not board.is_empty(row, col):
+            self.gui.update_top_message("Please choose an empty marker position")
+            return None
+        else:
+            return (row, col)
+
+    def update_policy(self, _final_reward, _move_history, _marker):
+        pass
 
 
 class ManualAgent:
-    def get_move(self, game, marker):
-        print(game)
+    def get_move(self, board, marker):
+        print(board)
 
         player_input = input(f"place marker ({str(marker)}): ").split(",")
         # check whether input is row, col
         try:
             row, col = player_input
         except:
-            print(f"Please choose a marker position in x=[0,1,2], y=[0,1,2]")
+            print("Please choose a marker position in x=[0,1,2], y=[0,1,2]")
             return None
         row, col = int(row), int(col)
 
         # we check for more exceptions
         if not row in range(3) or not col in range(3):
-            print(f"Please choose a marker position in x=[0,1,2], y=[0,1,2]")
+            print("Please choose a marker position in x=[0,1,2], y=[0,1,2]")
             return None
-        elif not game.is_empty(row, col):
-            print(f"Please choose an empty marker position")
+        elif not board.is_empty(row, col):
+            print("Please choose an empty marker position")
             return None
         else:
             return (row, col)
@@ -48,7 +86,7 @@ class DeterministicAgent:
         pass
 
 
-def duel(agent, opponent, episodes, rng, *, verbose=False):
+def duel(agent, opponent, episodes, rng, *, verbose=False, print_file=sys.stdout):
     history_result = []
     for episode in range(episodes):
 
@@ -62,6 +100,7 @@ def duel(agent, opponent, episodes, rng, *, verbose=False):
                 p.update_policy(final_reward)
         else:
             if winner == game.assigned_markers[0]:
+                print("you lost", file=print_file)
                 history_result.append(1.0)
             else:
                 history_result.append(-1.0)
@@ -105,6 +144,8 @@ def main():
     epsilon = 0.01
     alpha = 0.5
     gamma = 0.95
+    no_episodes = 5
+
     agent = Agent(seed=seed, epsilon=epsilon, alpha=alpha, gamma=gamma)
     try:
         LOAD = agent.load_policy('./policy.json')
@@ -116,8 +157,22 @@ def main():
         print("Training agent")
         self_play(agent, 10_000, rng, opponent_epsilon=1.0)
         agent.save_policy('./policy.json')
+
     print("Starting game")
-    duel(agent, ManualAgent(), 5, rng, verbose=True)
+    if not GUI:
+        duel(agent, ManualAgent(), no_episodes, rng, verbose=True)
+    else:
+
+        # init a gui
+        main_gui = gui.gui()
+
+        guiagent = GuiAgent(main_gui)
+
+        main_gui.gui_duel(agent, guiagent, no_episodes, rng, verbose=True)
 
 
-main()
+
+
+if __name__ == '__main__':
+    main()
+
