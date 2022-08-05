@@ -10,10 +10,25 @@ import PySimpleGUI as sg
 class ManualAgent:
     def get_move(self, game, marker):
         print(game)
-        row, col = input(f"place marker ({str(marker)}): ").split(",")
+
+        player_input = input(f"place marker ({str(marker)}): ").split(",")
+        # check whether input is row, col
+        try:
+            row, col = player_input
+        except:
+            print(f"Please choose a marker position in x=[0,1,2], y=[0,1,2]")
+            return None
         row, col = int(row), int(col)
-        assert game.is_empty(row, col)
-        return (row, col)
+
+        # we check for more exceptions
+        if not row in range(3) or not col in range(3):
+            print(f"Please choose a marker position in x=[0,1,2], y=[0,1,2]")
+            return None
+        elif not game.is_empty(row, col):
+            print(f"Please choose an empty marker position")
+            return None
+        else:
+            return (row, col)
 
     def update_policy(self, _final_reward, _move_history, _marker):
         pass
