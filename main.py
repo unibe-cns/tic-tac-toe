@@ -4,6 +4,8 @@ import numpy as np
 from agent import Agent
 from game import Game
 
+import PySimpleGUI as sg
+
 
 class ManualAgent:
     def get_move(self, game, marker):
@@ -89,15 +91,18 @@ def main():
     alpha = 0.5
     gamma = 0.95
     agent = Agent(seed=seed, epsilon=epsilon, alpha=alpha, gamma=gamma)
-    # try:
-    #     agent.load_policy('./policy.json')
-    # except FileNotFoundError:
-    #     pass
+    try:
+        LOAD = agent.load_policy('./policy.json')
+    except FileNotFoundError:
+        LOAD = False
 
     rng = np.random.default_rng(seed)
-    self_play(agent, 10_000, rng, opponent_epsilon=1.0)
+    if not LOAD:
+        print("Training agent")
+        self_play(agent, 10_000, rng, opponent_epsilon=1.0)
+        agent.save_policy('./policy.json')
+    print("Starting game")
     duel(agent, ManualAgent(), 5, rng, verbose=True)
-    # agent.save_policy('./policy.json')
 
 
 main()

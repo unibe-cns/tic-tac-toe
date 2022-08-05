@@ -49,6 +49,7 @@ class Agent:
 
     def load_policy(self, fn):
         with open(fn, "r") as f:
+            print(f"Loading policy {f.name}")
             policy = json.load(f)
         self.reset_policy()
         for str_marker in policy:
@@ -56,6 +57,7 @@ class Agent:
                 self.policy[Board.str_value_to_state[str_marker]][key] = np.array(
                     policy[str_marker][key]
                 )
+        return True
 
     def policy_move(self, board, marker):
         key = board.to_str()
