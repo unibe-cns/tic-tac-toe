@@ -97,9 +97,7 @@ def duel(agent, opponent, episodes, rng, *, verbose=False, print_file=sys.stdout
 
         if isinstance(opponent, GuiAgent):
             # print board after game one more time (necessary in case agent wins)
-            print("is gui agent!")
-            opponent.gui.update_game_state(game.board)
-            print("done printing")
+            opponent.gui.update_game_state(game.board, winning_fields=winning_fields)
             # sleep for x sec
             time.sleep(2)
 
