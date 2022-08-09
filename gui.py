@@ -74,7 +74,7 @@ class gui():
         BUTTON_SIZE = (2,2)
 
         self.layout = [[[sg.Text(LANG_DICT['new_game']), sg.Text(size=(20,1), key='-HEAD_TEXT-')],
-                   [[sg.Button("", image_data=icons.blank, key=(j, i), metadata=False, button_color=(sg.theme_background_color('white'),sg.theme_background_color('white')), pad=(10,10), highlight_colors='white', mouseover_colors='white') for i in range(3)] for j in range(3)]
+                   [[sg.Button("", image_data=icons.blank, key=(j, i), metadata=False, button_color=(sg.theme_background_color('white'),sg.theme_background_color('white')), pad=(10,10), mouseover_colors='white') for i in range(3)] for j in range(3)]
                    ]]
 
         self.window = sg.Window(LANG_DICT['game_title'], self.layout, margins=(0, 0), background_color='#000')
