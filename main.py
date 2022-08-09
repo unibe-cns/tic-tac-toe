@@ -6,6 +6,7 @@ import numpy as np
 from agent import Agent
 from game import Game
 import gui
+import time
 
 GUI = True
 
@@ -17,6 +18,7 @@ class GuiAgent:
         self.gui = gui
 
     def get_move(self, board, marker):
+        print("player marker:", marker)
         print(board)
 
         # player_input = input(f"place marker ({str(marker)}): ").split(",")
@@ -93,6 +95,14 @@ def duel(agent, opponent, episodes, rng, *, verbose=False, print_file=sys.stdout
         game = Game(agent, opponent, rng)
         (state, winner, winning_fields) = game.play(verbose)
 
+        if isinstance(opponent, GuiAgent):
+            # print board after game one more time (necessary in case agent wins)
+            print("is gui agent!")
+            opponent.gui.update_game_state(game.board)
+            print("done printing")
+            # sleep for x sec
+            time.sleep(2)
+
         if state == Game.GameState.DRAW:
             history_result.append(0.0)
             for p in game.players:
@@ -167,6 +177,9 @@ def main():
         main_gui = gui.gui()
 
         guiagent = GuiAgent(main_gui)
+
+        # add gui functions to bot
+        agent.gui = main_gui
 
         main_gui.gui_duel(agent, guiagent, no_episodes, rng, verbose=True)
 
