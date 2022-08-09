@@ -21,7 +21,7 @@ LANG_DICT = lang_DE
 
 class gui():
 
-    def update_game_state(self, board, winning_fields=[None]):
+    def update_game_state(self, board, winning_fields=None):
         # print("received board:", board)
         self.board = board
         for row in range(3):
@@ -31,12 +31,12 @@ class gui():
                 if label == "_":
                     icon = icons.blank
                 elif label == "x":
-                    if (row,col) in winning_fields:
+                    if winning_fields and (row,col) in winning_fields:
                         icon = icons.x_inv
                     else:
                         icon = icons.x
                 elif label == "o":
-                    if (row,col) in winning_fields:
+                    if winning_fields and (row,col) in winning_fields:
                         icon = icons.o_inv
                     else:
                         icon = icons.o
