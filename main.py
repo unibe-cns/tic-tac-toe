@@ -36,7 +36,7 @@ def duel(agent, opponent, episodes, rng, *, verbose=False):
     for episode in range(episodes):
 
         game = Game(agent, opponent, rng)
-        (state, winner) = game.play(verbose)
+        (state, winner, winning_fields) = game.play(verbose)
 
         if state == Game.GameState.DRAW:
             history_result.append(0.0)

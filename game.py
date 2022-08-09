@@ -45,37 +45,45 @@ class Game:
         # check win
         for row in range(3):
             x = 0
+            winning_fields = []
             for col in range(3):
                 x += self.board[row][col]
+                winning_fields.append((row, col))
             if x == 3:
-                return (Game.GameState.WIN, Board.FieldState.CROSS)
+                return (Game.GameState.WIN, Board.FieldState.CROSS, winning_fields)
             elif x == -3:
-                return (Game.GameState.WIN, Board.FieldState.CIRCLE)
+                return (Game.GameState.WIN, Board.FieldState.CIRCLE, winning_fields)
 
         for col in range(3):
             x = 0
+            winning_fields = []
             for row in range(3):
                 x += self.board[row][col]
+                winning_fields.append((row, col))
             if x == 3:
-                return (Game.GameState.WIN, Board.FieldState.CROSS)
+                return (Game.GameState.WIN, Board.FieldState.CROSS, winning_fields)
             elif x == -3:
-                return (Game.GameState.WIN, Board.FieldState.CIRCLE)
+                return (Game.GameState.WIN, Board.FieldState.CIRCLE, winning_fields)
 
         x = 0
+        winning_fields = []
         for idx in range(3):
             x += self.board[idx][idx]
+            winning_fields.append((idx, idx))
         if x == 3:
-            return (Game.GameState.WIN, Board.FieldState.CROSS)
+            return (Game.GameState.WIN, Board.FieldState.CROSS, winning_fields)
         elif x == -3:
-            return (Game.GameState.WIN, Board.FieldState.CIRCLE)
+            return (Game.GameState.WIN, Board.FieldState.CIRCLE, winning_fields)
 
         x = 0
+        winning_fields = []
         for idx in range(3):
             x += self.board[idx][2 - idx]
+            winning_fields.append((idx, 2 - idx))
         if x == 3:
-            return (Game.GameState.WIN, Board.FieldState.CROSS)
+            return (Game.GameState.WIN, Board.FieldState.CROSS, winning_fields)
         elif x == -3:
-            return (Game.GameState.WIN, Board.FieldState.CIRCLE)
+            return (Game.GameState.WIN, Board.FieldState.CIRCLE, winning_fields)
 
         # check draw
         x = 0
@@ -83,9 +91,9 @@ class Game:
             for col in range(3):
                 x += abs(self.board[row][col])
         if x == 9:
-            return (Game.GameState.DRAW, None)
+            return (Game.GameState.DRAW, None, None)
 
-        return (Game.GameState.RUNNING, None)
+        return (Game.GameState.RUNNING, None, None)
 
     def play(self, verbose=False):
         done = False
@@ -94,7 +102,7 @@ class Game:
                 move = p.get_move(self.board)
                 self.board.mark(move[0], move[1], p.marker)
 
-                (state, winner) = self.check_state()
+                (state, winner, winning_fields) = self.check_state()
                 if state != Game.GameState.RUNNING:
                     done = True
                     if verbose:
@@ -102,4 +110,4 @@ class Game:
                         print(state, winner)
                     break
 
-        return (state, winner)
+        return (state, winner, winning_fields)
