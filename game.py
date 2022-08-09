@@ -2,10 +2,11 @@ import enum
 import numpy as np
 
 from board import Board
+import time
 
 
 class Player:
-    def __init__(self, agent, marker):
+    def __init__(self, agent, marker, gui=None):
         self.agent = agent
         self.marker = marker
         self.move_history = []
@@ -98,6 +99,9 @@ class Game:
                     if move is not None:
                         break
                 self.board.mark(move[0], move[1], p.marker)
+                # if hasattr(p.agent.gui, 'update_game_state'):
+                #     p.agent.gui.update_game_state(self.board)
+                #     time.sleep(.1)
 
                 (state, winner) = self.check_state()
                 if state != Game.GameState.RUNNING:

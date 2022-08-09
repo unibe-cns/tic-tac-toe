@@ -7,22 +7,35 @@ from game import Game
 from board import Board
 
 import PySimpleGUI as sg
+from img import icons
+import base64
+from io import BytesIO
+from PIL import Image 
+
 
 from lang import lang_DE
 LANG_DICT = lang_DE
 
-
-
+# def convert_str_to_
 
 
 class gui():
 
     def update_game_state(self, board):
+        # print("received board:", board)
         self.board = board
         for row in range(3):
             for col in range(3):
                 label = Board.field_state_to_str_map[self.board[row][col]]
-                self.window[(row,col)].update(label)
+
+                if label == "_":
+                    icon = icons.blank
+                elif label == "x":
+                    icon = icons.x_inv
+                elif label == "o":
+                    icon = icons.o_inv
+                self.window[(row,col)].update(image_data=icon)
+        self.window.Refresh()
         
 
     def update_top_message(self, message):
@@ -30,7 +43,7 @@ class gui():
 
     def listen_input(self):
         event, values = self.window.Read()
-        print(event, values)
+        # print(event, values)
         return event
 
     def write(self, message):
@@ -40,19 +53,25 @@ class gui():
 
     def gui_duel(self, agent, opponent, no_episodes, rng, *, verbose=False):
 
-        display_text = 'Example'
+        buffer = BytesIO(base64.b64decode(icons.o))
+        width, height = Image.open(buffer).size
 
-        sg.theme('DarkAmber')    # Keep things interesting for your users
+        # Create a blank image
+        icons.blank = Image.new("RGBA", (width, height), "#ffffff00")
+        # convert to base64
+        with BytesIO() as output:
+            icons.blank.save(output, format="PNG")
+            icons.blank = output.getvalue()
+
+        sg.theme('Black')    # Keep things interesting for your users
 
         BUTTON_SIZE = (2,2)
 
         self.layout = [[[sg.Text(LANG_DICT['new_game']), sg.Text(size=(20,1), key='-HEAD_TEXT-')],
-                   [sg.Button(' ', size=BUTTON_SIZE, key=(0,0)), sg.Button(' ', size=BUTTON_SIZE, key=(0,1)), sg.Button(' ', size=BUTTON_SIZE, key=(0,2))],
-                   [sg.Button(' ', size=BUTTON_SIZE, key=(1,0)), sg.Button(' ', size=BUTTON_SIZE, key=(1,1)), sg.Button(' ', size=BUTTON_SIZE, key=(1,2))],
-                   [sg.Button(' ', size=BUTTON_SIZE, key=(2,0)), sg.Button(' ', size=BUTTON_SIZE, key=(2,1)), sg.Button(' ', size=BUTTON_SIZE, key=(2,2))]
+                   [[sg.Button("", image_data=icons.blank, key=(j, i), metadata=False, button_color=(sg.theme_background_color('white'),sg.theme_background_color('white')), pad=(10,10), highlight_colors='white', mouseover_colors='white') for i in range(3)] for j in range(3)]
                    ]]
 
-        self.window = sg.Window(LANG_DICT['game_title'], self.layout)
+        self.window = sg.Window(LANG_DICT['game_title'], self.layout, margins=(0, 0), background_color='#000')
 
         # a modified version of main.duel with GUI implementation
         history_result = []

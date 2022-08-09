@@ -2,7 +2,7 @@ import collections
 import copy
 import json
 import numpy as np
-
+import time
 
 from game import Board
 
@@ -15,7 +15,8 @@ class Agent:
 
     move_to_action_idx = {value: key for key, value in action_idx_to_move.items()}
 
-    def __init__(self, *, seed, epsilon, alpha, gamma):
+    def __init__(self, *, seed, epsilon, alpha, gamma, gui=None):
+        self.gui = gui
         self.seed = seed
         self.epsilon = epsilon
         self.alpha = alpha
@@ -40,6 +41,10 @@ class Agent:
         else:
             move = self.policy_move(board, marker)
         assert board.is_empty(move[0], move[1])
+
+        if self.gui is not None:
+            self.gui.update_game_state(board)
+            time.sleep(.1)
         return move
 
     def n_boards_seen(self):
