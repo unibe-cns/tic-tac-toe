@@ -3,7 +3,8 @@ import time
 import sys
 
 from game import Game
-from gui_agent import GuiAgent
+
+# from gui_agent import GuiAgent
 
 
 def update_level(agent, guiagent, next_level=False, winner=None):
@@ -33,61 +34,63 @@ def update_level(agent, guiagent, next_level=False, winner=None):
     guiagent.gui.level = level
 
 
-def duel(agent, opponent, episodes, rng, *, verbose=False, print_file=sys.stdout):
+# FIXME agent0, agent1
+def duel(ui, agent, opponent, episodes, rng):
     history_result = []
-    done = False
-    epi = 0
-    player_wins = 0
-    while not done:
+    # done = False
+    # epi = 0
+    # player_wins = 0
+    # while not done:
+    # FIXME n_episodes
+    for _episode in range(episodes):
 
-        # the episodes counter is only needed for bot training, otherwise game is infinite
-        if not isinstance(opponent, GuiAgent):
-            if epi == episodes:
-                done = True
+        # # the episodes counter is only needed for bot training, otherwise game is infinite
+        # if not isinstance(opponent, GuiAgent):
+        #     if epi == episodes:
+        #         done = True
 
-        game = Game(agent, opponent, rng)
-        (state, winner, winning_fields) = game.play(verbose)
+        game = Game(ui, agent, opponent, rng)
+        (state, winner, winning_fields) = game.play()
 
-        if isinstance(opponent, GuiAgent):
-            # print board after game one more time (necessary in case agent wins)
-            opponent.gui.update_game_state(game.board, winning_fields=winning_fields)
+        # if isinstance(opponent, GuiAgent):
+        #     # print board after game one more time (necessary in case agent wins)
+        #     opponent.gui.update_game_state(game.board, winning_fields=winning_fields)
 
         if state == Game.GameState.DRAW:
             history_result.append(0.0)
             for p in game.players:
                 final_reward = 0.0
                 p.update_policy(final_reward)
-            if isinstance(opponent, GuiAgent):
-                opponent.gui.update_top_message("draw")
-                update_level(agent, opponent, winner="draw")
-                # sleep for x sec
-                time.sleep(2)
-                opponent.gui.update_top_message("")
+            # if isinstance(opponent, GuiAgent):
+            #     opponent.gui.update_top_message("draw")
+            #     update_level(agent, opponent, winner="draw")
+            #     # sleep for x sec
+            #     time.sleep(2)
+            #     opponent.gui.update_top_message("")
         else:
             if winner == game.assigned_markers[0]:
-                # print("you lost", file=print_file)
                 history_result.append(1.0)
-                if isinstance(opponent, GuiAgent):
-                    opponent.gui.update_top_message("bot_wins")
-                    opponent.gui.blink(game.board, winning_fields=winning_fields)
-                    # sleep for x sec
-                    time.sleep(2)
-                    update_level(agent, opponent, winner="bot")
-                    # opponent.gui.update_top_message('')
+                # if isinstance(opponent, GuiAgent):
+                #     opponent.gui.update_top_message("bot_wins")
+                #     opponent.gui.blink(game.board, winning_fields=winning_fields)
+                #     # sleep for x sec
+                #     time.sleep(2)
+                #     update_level(agent, opponent, winner="bot")
+                #     # opponent.gui.update_top_message('')
             else:
                 history_result.append(-1.0)
-                if isinstance(opponent, GuiAgent):
-                    player_wins += 1
-                    next_level = True if player_wins == episodes else False
-                    if next_level:
-                        player_wins = 0
-                    opponent.gui.update_top_message("player_wins")
-                    # sleep for x sec
-                    time.sleep(2)
-                    update_level(
-                        agent, opponent, next_level=next_level, winner="player"
-                    )
-                    opponent.gui.update_top_message("")
+                # if isinstance(opponent, GuiAgent):
+                #     player_wins += 1
+                #     next_level = True if player_wins == episodes else False
+                #     if next_level:
+                #         player_wins = 0
+                #     opponent.gui.update_top_message("player_wins")
+                #     # sleep for x sec
+                #     time.sleep(2)
+                #     update_level(
+                #         agent, opponent, next_level=next_level, winner="player"
+                #     )
+                #     opponent.gui.update_top_message("")
             for p in game.players:
                 if winner == p.marker:
                     final_reward = 1.0
@@ -95,9 +98,9 @@ def duel(agent, opponent, episodes, rng, *, verbose=False, print_file=sys.stdout
                     final_reward = -1.0
                 p.update_policy(final_reward)
 
-        if isinstance(opponent, GuiAgent):
-            opponent.gui.update_level_text(opponent.gui.level)
+        # if isinstance(opponent, GuiAgent):
+        #     opponent.gui.update_level_text(opponent.gui.level)
 
-        epi += 1
+        # epi += 1
 
     return history_result

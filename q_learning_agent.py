@@ -35,7 +35,7 @@ class QLearningAgent:
         agent.policy = copy.deepcopy(self.policy)
         return agent
 
-    def get_move(self, board, marker):
+    def get_move(self, _ui, board, marker):
         p = self.rng.uniform()
         if p < self.epsilon:
             move = self.random_move(board)

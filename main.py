@@ -7,9 +7,11 @@ import numpy as np
 from q_learning_agent import QLearningAgent
 from duel import duel
 from game import Game
-from gui_agent import GuiAgent
-import gui
+from ui_agent import UIAgent
+from gui import GUI
 import time
+from tui import TUI
+from nui import NUI
 import math
 
 
@@ -19,16 +21,12 @@ def self_play(agent, episodes, rng, *, opponent_epsilon, reset_opponent_policy=F
     opponent.alpha = 0.0
     if reset_opponent_policy:
         opponent.reset_policy()
-    history_result = duel(agent, opponent, episodes, rng)
+    history_result = duel(NUI(), agent, opponent, episodes, rng)
 
     return history_result
 
 
-def main():
-    seed = 1234
-    epsilon = 0.25
-    alpha = 0.5
-    gamma = 0.95
+def generate_policies_for_q_learning_agent(*, seed, epsilon, alpha, gamma):
     no_episodes = 2
     no_train_episodes = 10_000
     # save policy at win_rate approx [0.3, 0.4, 0.6, 0.8, 1.0]
@@ -83,27 +81,46 @@ def main():
         plt.ylim(-1, 1)
         plt.show()
 
-    print("Starting game with untrained agent")
+    # print("Starting game with untrained agent")
     # make iterator over saved_policies
     agent.policy_list = [
         "./saved_policies/policy" + str(i) + ".json" for i in save_policy_after_episodes
     ]
-    agent.policy_iter = iter(agent.policy_list)
-    agent.load_policy(next(agent.policy_iter))
-    agent.epsilon = 0.0
+    # agent.policy_iter = iter(agent.policy_list)
+    # agent.load_policy(next(agent.policy_iter))
+    return agent.policy_list
 
-    # init a gui
-    main_gui = gui.Gui()
 
-    # init a player gui agent
-    guiagent = GuiAgent(main_gui)
+# def main():
 
-    # add gui functions to bot
-    agent.gui = main_gui
+# # init a gui
+# main_gui = gui.Gui()
 
-    # start game
-    main_gui.gui_duel(agent, guiagent, no_episodes, rng, verbose=True)
+# # init a player gui agent
+# guiagent = GuiAgent(main_gui)
+
+# # add gui functions to bot
+# agent.gui = main_gui
+
+# # start game
+# main_gui.gui_duel(agent, guiagent, no_episodes, rng, verbose=True)
 
 
 if __name__ == "__main__":
-    main()
+    # ui = TUI()
+    ui = GUI()
+    agent0 = UIAgent()
+    q_learning_agent_params = {
+        "seed": 1234,
+        "epsilon": 0.25,
+        "alpha": 0.5,
+        "gamma": 0.95,
+    }
+    policies = generate_policies_for_q_learning_agent(**q_learning_agent_params)
+    agent1 = QLearningAgent(**q_learning_agent_params)
+    agent1.epsilon = 0.0
+    agent1.load_policy(policies[-1])
+    rng = np.random.default_rng(1234)
+    # game = Game(ui, agent0, agent1, rng)
+    # game.play()
+    duel(ui, agent0, agent1, 5, rng)
