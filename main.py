@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from q_learning_agent import QLearningAgent
+from duel import duel
 from game import Game
 from gui_agent import GuiAgent
 import gui
