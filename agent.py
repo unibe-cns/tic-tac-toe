@@ -1,8 +1,9 @@
 import collections
 import copy
 import json
-import numpy as np
 import time
+
+import numpy as np
 
 from game import Board
 
@@ -54,7 +55,6 @@ class Agent:
 
     def load_policy(self, fn):
         with open(fn, "r") as f:
-            print(f"Loading policy {f.name}")
             policy = json.load(f)
         self.reset_policy()
         for str_marker in policy:
@@ -76,7 +76,7 @@ class Agent:
                     action_idx = Agent.move_to_action_idx[(row, col)]
                     values[action_idx] = -np.inf
 
-        # make sure to evenly sample all state with same value
+        # make sure to evenly sample all states with same value
         max_value = np.max(values)
         if sum(values == max_value) == 1:
             action_idx = np.argmax(values)
