@@ -1,6 +1,4 @@
-import matplotlib.pyplot as plt
 import numpy as np
-import __main__ as main
 
 from agent import Agent
 from game import Game
@@ -13,15 +11,13 @@ from io import BytesIO
 from PIL import Image
 import time
 
-
+from duel import duel
 from lang import lang_DE
 
 LANG_DICT = lang_DE
 
-# def convert_str_to_
 
-
-class gui:
+class Gui:
     def update_game_state(self, board, winning_fields=None):
         # print("received board:", board)
         self.board = board
@@ -134,7 +130,7 @@ class gui:
             event, values = self.window.Read(timeout=1)
             # self.window['-HEAD_TEXT-'].update('Neues Spiel')
 
-            _ = main.duel(
+            _ = duel(
                 agent, opponent, no_episodes, rng, verbose=verbose, print_file=self
             )
 
