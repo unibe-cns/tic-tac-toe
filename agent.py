@@ -44,7 +44,7 @@ class Agent:
 
         if self.gui is not None:
             self.gui.update_game_state(board)
-            time.sleep(.1)
+            time.sleep(0.1)
         return move
 
     def n_boards_seen(self):
