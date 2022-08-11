@@ -12,20 +12,6 @@ import time
 import math
 
 
-class DeterministicAgent:
-    def __init__(self, moves):
-        self.moves = list(moves)
-        self.idx = 0
-
-    def get_move(self, game, marker):
-        move = self.moves[self.idx]
-        self.idx += 1
-        return move
-
-    def update_policy(self, _final_reward, _move_history, _marker):
-        pass
-
-
 def update_level(agent, guiagent, next_level=False, winner=None):
     # updates bot and level message
 
