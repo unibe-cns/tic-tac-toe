@@ -24,9 +24,6 @@ def self_play(agent, episodes, rng, *, opponent_epsilon, reset_opponent_policy=F
 
 
 def main():
-    # TODO after update, offline replay (small alpha?)
-    # TODO policy gradient as an alternative
-
     seed = 1234
     epsilon = 0.25
     alpha = 0.5
