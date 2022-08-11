@@ -8,7 +8,7 @@ import numpy as np
 from game import Board
 
 
-class Agent:
+class QLearningAgent:
 
     action_idx_to_move = {
         row * 3 + col: (row, col) for row in range(3) for col in range(3)
@@ -26,7 +26,7 @@ class Agent:
         self.rng = np.random.default_rng(self.seed)
 
     def clone(self):
-        agent = Agent(
+        agent = QLearningAgent(
             seed=self.seed + 5678,
             epsilon=self.epsilon,
             alpha=self.alpha,
@@ -73,7 +73,7 @@ class Agent:
         for row in range(3):
             for col in range(3):
                 if not board.is_empty(row, col):
-                    action_idx = Agent.move_to_action_idx[(row, col)]
+                    action_idx = QLearningAgent.move_to_action_idx[(row, col)]
                     values[action_idx] = -np.inf
 
         # make sure to evenly sample all states with same value
@@ -86,7 +86,7 @@ class Agent:
             probs /= np.sum(probs)
             action_idx = self.rng.choice(range(9), p=probs)
 
-        move = Agent.action_idx_to_move[action_idx]
+        move = QLearningAgent.action_idx_to_move[action_idx]
         return move
 
     def random_move(self, board):
@@ -132,7 +132,7 @@ class Agent:
                     continue
                 considered_keys.add(rotated_key)
 
-                action_idx = Agent.move_to_action_idx[rotated_move]
+                action_idx = QLearningAgent.move_to_action_idx[rotated_move]
                 if t == (T - 1):
                     r = final_reward
                     max_Q = 0.0

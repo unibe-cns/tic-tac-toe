@@ -1,6 +1,6 @@
 import numpy as np
 
-from agent import Agent
+from q_learning_agent import QLearningAgent
 from game import Game
 from board import Board
 

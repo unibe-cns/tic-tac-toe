@@ -4,7 +4,7 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 
-from agent import Agent
+from q_learning_agent import QLearningAgent
 from game import Game
 from gui_agent import GuiAgent
 import gui
@@ -36,7 +36,7 @@ def main():
     # save policy at win_rate approx [0.3, 0.4, 0.6, 0.8, 1.0]
     save_policy_after_episodes = [0, 100, 350, 1_000, 10_000]
 
-    agent = Agent(seed=seed, epsilon=epsilon, alpha=alpha, gamma=gamma)
+    agent = QLearningAgent(seed=seed, epsilon=epsilon, alpha=alpha, gamma=gamma)
     try:
         LOAD = agent.load_policy(
             "./saved_policies/policy" + str(save_policy_after_episodes[-1]) + ".json"
