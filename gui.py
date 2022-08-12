@@ -2,16 +2,12 @@ import base64
 import time
 from io import BytesIO
 
-import numpy as np
 import PySimpleGUI as sg
 from PIL import Image
 
 from board import Board
-from game import Game
 from img import icons
-# from duel import duel
 from lang import lang_DE
-from q_learning_agent import QLearningAgent
 
 LANG_DICT = lang_DE
 
@@ -81,7 +77,7 @@ class GUI:
         ]
 
         return [
-            [sg.Column(game_column), sg.Column(score_column, justification="center"),]
+            [sg.Column(game_column), sg.Column(score_column, justification="center")]
         ]
 
     def show_board(self, board, winning_fields=None):

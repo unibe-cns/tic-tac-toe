@@ -1,6 +1,3 @@
-import collections
-import math
-import sys
 import time
 
 from game import Game

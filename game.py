@@ -1,7 +1,4 @@
 import enum
-import time
-
-import numpy as np
 
 from board import Board
 
