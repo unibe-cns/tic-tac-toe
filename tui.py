@@ -1,17 +1,42 @@
+import sys
+import termios
 import time
+import tty
 
 
 class TUI:
+    def __init__(self, *, single_character_input=False):
+        self.single_character_input = single_character_input
+
     @staticmethod
-    def listen_input(marker):
+    def getch():
+        filedescriptors = termios.tcgetattr(sys.stdin)
+        tty.setcbreak(sys.stdin)
+        x = sys.stdin.read(1)[0]
+        termios.tcsetattr(sys.stdin, termios.TCSADRAIN, filedescriptors)
+        return x
+
+    def listen_input(self, marker):
         while True:
-            move = input(f"Please place marker ({str(marker)}): ")
-            try:
-                row, col = move.split(",")
-                row, col = int(row), int(col)
-                return (row, col)
-            except ValueError:
-                return None
+            if self.single_character_input:
+                try:
+                    print(f"Please place marker ({str(marker)}): ", end="")
+                    move = self.getch()
+                    move = int(move)
+                    row = move // 3
+                    col = move % 3
+                    print((row, col))
+                    return (row, col)
+                except ValueError:
+                    return None
+            else:
+                move = input(f"Please place marker ({str(marker)}): ")
+                try:
+                    row, col = move.split(",")
+                    row, col = int(row), int(col)
+                    return (row, col)
+                except ValueError:
+                    return None
 
     @staticmethod
     def show_board(board):
