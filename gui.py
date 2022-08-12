@@ -64,11 +64,21 @@ class GUI:
         score_column = [
             [sg.Text("title str", size=(20, 1), key="-TITLE_TEXT-")],
             [sg.Text("subtitle str", size=(20, 1), key="-SUBTITLE_TEXT-")],
-            [sg.Text("", size=(20, 3), font=("DejaVu Sans Mono", 28), key="-WARN_TEXT-")],
+            [
+                sg.Text(
+                    "", size=(20, 3), font=("DejaVu Sans Mono", 28), key="-WARN_TEXT-"
+                )
+            ],
             [sg.Image("", key="-PLAYER0_IMG-")],
-            [sg.Text("0", size=(20, 1), key="-PLAYER0_TEXT-"), sg.Text("", size=(5, 1), key="-PLAYER0_SCORE-")],
+            [
+                sg.Text("0", size=(20, 1), key="-PLAYER0_TEXT-"),
+                sg.Text("", size=(5, 1), key="-PLAYER0_SCORE-"),
+            ],
             [sg.Image("", key="-PLAYER1_IMG-")],
-            [sg.Text("0", size=(20, 1), key="-PLAYER1_TEXT-"), sg.Text("", size=(5, 1), key="-PLAYER1_SCORE-")],
+            [
+                sg.Text("0", size=(20, 1), key="-PLAYER1_TEXT-"),
+                sg.Text("", size=(5, 1), key="-PLAYER1_SCORE-"),
+            ],
         ]
 
         return [

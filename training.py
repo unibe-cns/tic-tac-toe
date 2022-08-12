@@ -6,6 +6,7 @@ from duel import duel_with_training
 from nui import NUI
 from q_learning_agent import QLearningAgent
 
+
 def self_play(agent, episodes, rng, *, opponent_epsilon):
     opponent = agent.clone()
     opponent.epsilon = opponent_epsilon
@@ -14,7 +15,9 @@ def self_play(agent, episodes, rng, *, opponent_epsilon):
     return history_result
 
 
-def generate_policies_for_q_learning_agent(*, seed, epsilon, alpha, gamma, save_after_episodes):
+def generate_policies_for_q_learning_agent(
+    *, seed, epsilon, alpha, gamma, save_after_episodes
+):
     policy_dir = "./policies/"
 
     fn_policies = []
