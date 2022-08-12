@@ -24,11 +24,28 @@ class GUI:
         sg.theme("Black")  # Keep things interesting for your users
         sg.set_options(font=("DejaVu Sans Mono", 54))
 
-        # self.level = 0.1
-        level = 0.1
-        level_str = LANG_DICT["level"] + " " + str(level)
-        head_str = LANG_DICT["new_game"]
+        layout = self.create_layout()
 
+        self.window = sg.Window(
+            "Tic Tac Toe", layout, margins=(0, 0), background_color="#000",
+        )
+        self.window.Read(timeout=0.001)
+        self.show_new_game()
+
+    @staticmethod
+    def create_blank_icon():
+        buffer = BytesIO(base64.b64decode(icons.o))
+        width, height = Image.open(buffer).size
+
+        # Create a blank image
+        icons.blank = Image.new("RGBA", (width, height), "#ffffff00")
+        # convert to base64
+        with BytesIO() as output:
+            icons.blank.save(output, format="PNG")
+            icons.blank = output.getvalue()
+
+    @staticmethod
+    def create_layout():
         game_column = [
             [
                 sg.Button(
@@ -45,39 +62,23 @@ class GUI:
         ]
 
         score_column = [
-            [sg.Text(head_str, size=(len(head_str) + 5, 1), key="-HEAD_TEXT-")],
-            [sg.Text("")],
-            [sg.Image("img/bot.png")],
-            [sg.Text(level_str, size=(len(level_str), 1), key="-LEVEL_TEXT-")],
+            [sg.Text("title str", size=(20, 1), key="-TITLE_TEXT-")],
+            [sg.Text("subtitle str", size=(20, 1), key="-SUBTITLE_TEXT-")],
+            [sg.Text("", size=(20, 3), font=("DejaVu Sans Mono", 28), key="-WARN_TEXT-")],
+            [sg.Image("", key="-PLAYER0_IMG-")],
+            [sg.Text("0", size=(20, 1), key="-PLAYER0_TEXT-"), sg.Text("", size=(5, 1), key="-PLAYER0_SCORE-")],
+            [sg.Image("", key="-PLAYER1_IMG-")],
+            [sg.Text("0", size=(20, 1), key="-PLAYER1_TEXT-"), sg.Text("", size=(5, 1), key="-PLAYER1_SCORE-")],
         ]
 
-        layout = [
+        return [
             [sg.Column(game_column), sg.Column(score_column, justification="center"),]
         ]
 
-        self.window = sg.Window(
-            LANG_DICT["game_title"], layout, margins=(0, 0), background_color="#000",
-        )
-        self.window.Read(timeout=0.001)
-
-    @staticmethod
-    def create_blank_icon():
-        buffer = BytesIO(base64.b64decode(icons.o))
-        width, height = Image.open(buffer).size
-
-        # Create a blank image
-        icons.blank = Image.new("RGBA", (width, height), "#ffffff00")
-        # convert to base64
-        with BytesIO() as output:
-            icons.blank.save(output, format="PNG")
-            icons.blank = output.getvalue()
-
     def show_board(self, board, winning_fields=None):
-        # print("received board:", board)
-        self.board = board
         for row in range(3):
             for col in range(3):
-                label = Board.field_state_to_str_map[self.board[row][col]]
+                label = Board.field_state_to_str_map[board[row][col]]
                 if label == "_":
                     icon = icons.blank
                 elif label == "x":
@@ -93,6 +94,10 @@ class GUI:
                 self.window[(row, col)].update(image_data=icon)
         self.window.Refresh()
 
+    def show_new_game(self):
+        self.write("New game", "-TITLE_TEXT-")
+        self.write("", "-SUBTITLE_TEXT-")
+
     def blink(self, board, winning_fields):
         for i in range(2):
             self.show_board(board, winning_fields=winning_fields)
@@ -101,61 +106,37 @@ class GUI:
             time.sleep(0.3)
         self.show_board(board, winning_fields=winning_fields)
 
-    def update_top_message(self, message):
-        if message in ["new_game", "bot_wins", "player_wins", "draw"]:
-            message = LANG_DICT[message]
-        self.window["-HEAD_TEXT-"].update(message)
-        self.window.Refresh()
-
-    def update_level_text(self, level):
-        # self.level = level
-        self.window["-LEVEL_TEXT-"].update(LANG_DICT["level"] + " " + f"{level:.1f}")
-        self.window.Refresh()
-
     def listen_input(self, _):
         event, values = self.window.Read()
-        # print(event, values)
+        self.warn("")
         return event
 
-    def write(self, message):
-        # print(message)
-        self.update_top_message(message)
-
-    # def gui_duel(self, agent, opponent, no_episodes, rng, *, verbose=False):
-    #     # a modified version of main.duel with GUI implementation
-    #     history_result = []
-    #     while True:  # Event Loop
-
-    #         # if game is not None:
-    #         #     HEAD_TEXT = 'NEW TITLE'
-
-    #         event, values = self.window.Read(timeout=1)
-    #         # self.window['-HEAD_TEXT-'].update('Neues Spiel')
-
-    #         _ = duel(
-    #             agent, opponent, no_episodes, rng, verbose=verbose, print_file=self
-    #         )
-
-    #         # (state, winner) = game.play(verbose)
-
-    #         # if event in (None, 'Exit'):
-    #         #     break
-    #         # if callable(event):
-    #         #     event()
-    #         # window['-HEAD_TEXT-'].update(HEAD_TEXT)
-
-    #     window.close()
-    #
+    def show_scores(self, scores):
+        self.write(str(scores[0]), "-PLAYER0_SCORE-")
+        self.write(str(scores[1]), "-PLAYER1_SCORE-")
 
     def show_final_state(self, board, state, winner, winning_fields):
         if winner is not None:
             winner_str = board.field_state_to_str_map[winner]
-            self.update_top_message(winner_str + " wins")
+            self.write("Winner: " + winner_str, "-TITLE_TEXT-")
+            self.write("", "-SUBTITLE_TEXT-")
             self.blink(board, winning_fields)
         else:
-            self.update_top_message("draw")
-        time.sleep(2.0)
-        self.update_top_message("new_game")
+            self.write("Draw", "-TITLE_TEXT-")
+            self.write("", "-SUBTITLE_TEXT-")
+            self.show_board(board)
+
+    def show_image(self, fn, key):
+        self.window[key].update(fn)
+        self.window.Refresh()
+
+    def warn(self, text):
+        self.write(text, "-WARN_TEXT-", text_color="#ff0000")
+
+    def write(self, text, key, *, text_color="#ffffff"):
+        self.window[key].update(text, text_color=text_color)
+        self.window.Refresh()
 
     def __del__(self):
-        self.window.close()
+        if self.window:
+            self.window.close()

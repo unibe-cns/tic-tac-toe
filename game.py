@@ -26,19 +26,19 @@ class Game:
         def update_policy(self, final_reward):
             self.agent.update_policy(final_reward, self.move_history, self.marker)
 
-    def __init__(self, ui, agent1, agent2, rng):
+    def __init__(self, ui, agent0, agent1, rng):
         self.ui = ui
         self.board = Board()
         if rng.uniform() < 0.5:
             self.players = [
-                Game.Player(agent1, Board.FieldState.CROSS),
-                Game.Player(agent2, Board.FieldState.CIRCLE),
+                Game.Player(agent0, Board.FieldState.CROSS),
+                Game.Player(agent1, Board.FieldState.CIRCLE),
             ]
             self.assigned_markers = [Board.FieldState.CROSS, Board.FieldState.CIRCLE]
         else:
             self.players = [
-                Game.Player(agent2, Board.FieldState.CROSS),
-                Game.Player(agent1, Board.FieldState.CIRCLE),
+                Game.Player(agent1, Board.FieldState.CROSS),
+                Game.Player(agent0, Board.FieldState.CIRCLE),
             ]
             self.assigned_markers = [Board.FieldState.CIRCLE, Board.FieldState.CROSS]
 
@@ -122,6 +122,4 @@ class Game:
                 if state != Game.GameState.RUNNING:
                     done = True
                     break
-        # FIXME draw ui final state
-        self.ui.show_final_state(self.board, state, winner, winning_fields)
         return (state, winner, winning_fields)

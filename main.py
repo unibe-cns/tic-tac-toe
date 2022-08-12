@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from q_learning_agent import QLearningAgent
-from duel import duel
+from duel import duel, duel_with_training, duel_manual_against_improving_agent
 from game import Game
 from ui_agent import UIAgent
 from gui import GUI
@@ -21,8 +21,7 @@ def self_play(agent, episodes, rng, *, opponent_epsilon, reset_opponent_policy=F
     opponent.alpha = 0.0
     if reset_opponent_policy:
         opponent.reset_policy()
-    history_result = duel(NUI(), agent, opponent, episodes, rng)
-
+    history_result = duel_with_training(NUI(), agent, opponent, episodes, rng)
     return history_result
 
 
@@ -91,25 +90,7 @@ def generate_policies_for_q_learning_agent(*, seed, epsilon, alpha, gamma):
     return agent.policy_list
 
 
-# def main():
-
-# # init a gui
-# main_gui = gui.Gui()
-
-# # init a player gui agent
-# guiagent = GuiAgent(main_gui)
-
-# # add gui functions to bot
-# agent.gui = main_gui
-
-# # start game
-# main_gui.gui_duel(agent, guiagent, no_episodes, rng, verbose=True)
-
-
-if __name__ == "__main__":
-    # ui = TUI()
-    ui = GUI()
-    agent0 = UIAgent()
+def main():
     q_learning_agent_params = {
         "seed": 1234,
         "epsilon": 0.25,
@@ -119,8 +100,14 @@ if __name__ == "__main__":
     policies = generate_policies_for_q_learning_agent(**q_learning_agent_params)
     agent1 = QLearningAgent(**q_learning_agent_params)
     agent1.epsilon = 0.0
-    agent1.load_policy(policies[-1])
+
     rng = np.random.default_rng(1234)
-    # game = Game(ui, agent0, agent1, rng)
-    # game.play()
-    duel(ui, agent0, agent1, 5, rng)
+    # # ui = TUI()
+    ui = GUI()
+    agent0 = UIAgent()
+    # duel(ui, agent0, agent1, 5, rng)
+    duel_manual_against_improving_agent(ui, agent0, agent1, policies, rng)
+
+
+if __name__ == "__main__":
+    main()

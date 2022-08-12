@@ -10,3 +10,6 @@ class NUI:
     @staticmethod
     def warn(msg):
         pass
+
+    def write(self, text, key):
+        pass
