@@ -55,7 +55,6 @@ def duel_manual_against_improving_agent(ui, agent0, agent1, policies, rng):
     ui.show_image("./img/bot.png", "-PLAYER1_IMG-")
     level = 0
     while True:
-        print(level, policies)
         agent1.load_policy(policies[level])
         ui.write(f"Bot v{level + 1:.1f}", "-PLAYER1_TEXT-")
         ui.show_new_game()
