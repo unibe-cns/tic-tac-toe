@@ -1,9 +1,9 @@
+import collections
 import math
-import time
 import sys
+import time
 
 from game import Game
-import collections
 
 
 def duel(ui, agent0, agent1, n_episodes, rng):

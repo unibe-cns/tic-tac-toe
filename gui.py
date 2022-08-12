@@ -1,18 +1,17 @@
-import numpy as np
-
-from q_learning_agent import QLearningAgent
-from game import Game
-from board import Board
-
-import PySimpleGUI as sg
-from img import icons
 import base64
-from io import BytesIO
-from PIL import Image
 import time
+from io import BytesIO
 
+import numpy as np
+import PySimpleGUI as sg
+from PIL import Image
+
+from board import Board
+from game import Game
+from img import icons
 # from duel import duel
 from lang import lang_DE
+from q_learning_agent import QLearningAgent
 
 LANG_DICT = lang_DE
 
