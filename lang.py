@@ -9,4 +9,5 @@ lang_DE = {
     "Bot v3.0": "Bot v3.0",
     "Bot v4.0": "Bot v4.0",
     "Invalid move. Position already occupied.": "Ungültige Position. Position schon besetzt.",
+    "You lost. End of game.": "Du hast verloren. Spielende.",
 }

@@ -70,3 +70,9 @@ def duel_manual_against_improving_agent(ui, agent0, agent1, policies, rng):
         ui.show_scores(scores)
         ui.show_final_state(game.board, state, winner, winning_fields)
         time.sleep(2.0)
+        if winner == game.assigned_markers[1]:
+            ui.warn("You lost. End of game.")
+            # ui.write("", "-PLAYER0_SCORE-")
+            # ui.write("", "-PLAYER1_SCORE-")
+            time.sleep(5.0)
+            ui.warn("")
