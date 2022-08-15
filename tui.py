@@ -57,3 +57,15 @@ class TUI:
     @staticmethod
     def warn(msg):
         print(f"WARNING: {msg}")
+
+    def write(self, text, key):
+        print(text)
+
+    def show_image(self, fn, key):
+        pass
+
+    def show_new_game(self):
+        pass
+
+    def show_scores(self, scores):
+        pass
