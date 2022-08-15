@@ -8,6 +8,7 @@ from PIL import Image
 from board import Board
 from img import icons
 from lang import lang_DE
+import warnings
 
 LANG_DICT = lang_DE
 
@@ -61,7 +62,7 @@ class GUI:
             [sg.Text("subtitle str", size=(20, 1), key="-SUBTITLE_TEXT-")],
             [
                 sg.Text(
-                    "", size=(20, 3), font=("DejaVu Sans Mono", 28), key="-WARN_TEXT-"
+                    "", size=(25, 3), font=("DejaVu Sans Mono", 28), key="-WARN_TEXT-"
                 )
             ],
             [sg.Image("", key="-PLAYER0_IMG-")],
@@ -139,6 +140,10 @@ class GUI:
         self.write(text, "-WARN_TEXT-", text_color="#ff0000")
 
     def write(self, text, key, *, text_color="#ffffff"):
+        if text in LANG_DICT:
+            text = LANG_DICT[text]
+        else:
+            warnings.warn(f"Translation for {text} not found.", RuntimeWarning)
         self.window[key].update(text, text_color=text_color)
         self.window.Refresh()
 
