@@ -49,6 +49,8 @@ class Board:
         return self.fields[row][col] == Board.FieldState.EMPTY
 
     def mark(self, row, col, field_state):
+        assert 0 <= row and row < 3
+        assert 0 <= col and col < 3
         assert self.is_empty(row, col)
         self.fields[row][col] = field_state
 

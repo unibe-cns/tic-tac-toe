@@ -1,23 +1,6 @@
 import enum
-import numpy as np
 
 from board import Board
-import time
-
-
-class Player:
-    def __init__(self, agent, marker, gui=None):
-        self.agent = agent
-        self.marker = marker
-        self.move_history = []
-
-    def get_move(self, board):
-        move = self.agent.get_move(board, self.marker)
-        self.move_history.append((board.to_str(), move))
-        return move
-
-    def update_policy(self, final_reward):
-        self.agent.update_policy(final_reward, self.move_history, self.marker)
 
 
 class Game:
@@ -27,18 +10,33 @@ class Game:
         DRAW = 1
         WIN = 2
 
-    def __init__(self, agent1, agent2, rng):
+    class Player:
+        def __init__(self, agent, marker):
+            self.agent = agent
+            self.marker = marker
+            self.move_history = []
+
+        def get_move(self, ui, board):
+            move = self.agent.get_move(ui, board, self.marker)
+            self.move_history.append((board.to_str(), move))
+            return move
+
+        def update_policy(self, final_reward):
+            self.agent.update_policy(final_reward, self.move_history, self.marker)
+
+    def __init__(self, ui, agent0, agent1, rng):
+        self.ui = ui
         self.board = Board()
         if rng.uniform() < 0.5:
             self.players = [
-                Player(agent1, Board.FieldState.CROSS),
-                Player(agent2, Board.FieldState.CIRCLE),
+                Game.Player(agent0, Board.FieldState.CROSS),
+                Game.Player(agent1, Board.FieldState.CIRCLE),
             ]
             self.assigned_markers = [Board.FieldState.CROSS, Board.FieldState.CIRCLE]
         else:
             self.players = [
-                Player(agent2, Board.FieldState.CROSS),
-                Player(agent1, Board.FieldState.CIRCLE),
+                Game.Player(agent1, Board.FieldState.CROSS),
+                Game.Player(agent0, Board.FieldState.CIRCLE),
             ]
             self.assigned_markers = [Board.FieldState.CIRCLE, Board.FieldState.CROSS]
 
@@ -96,27 +94,30 @@ class Game:
 
         return (Game.GameState.RUNNING, None, None)
 
-    def play(self, verbose=False):
+    def play(self):
         done = False
         while not done:
             for p in self.players:
-                # check if player returns legal move
-                move_done = False
-                while not move_done:
-                    move = p.get_move(self.board)
-                    if move is not None:
-                        break
-                self.board.mark(move[0], move[1], p.marker)
-                # if hasattr(p.agent.gui, 'update_game_state'):
-                #     p.agent.gui.update_game_state(self.board)
-                #     time.sleep(.1)
+                while True:
+                    move = p.get_move(self.ui, self.board)
+                    if move is None:
+                        self.ui.warn("Invalid move. Must be of the form `<row>,<col>`.")
+                        continue
+                    row, col = move
+                    if row < 0 or row > 2:
+                        self.ui.warn("Invalid move. Row must be in [0, 2].")
+                        continue
+                    if col < 0 or col > 2:
+                        self.ui.warn("Invalid move. Column must be in [0, 2].")
+                        continue
+                    if not self.board.is_empty(row, col):
+                        self.ui.warn("Invalid move. Position already occupied.")
+                        continue
+                    break  # can only be reached if input is valid
+                self.board.mark(row, col, p.marker)
 
                 (state, winner, winning_fields) = self.check_state()
                 if state != Game.GameState.RUNNING:
                     done = True
-                    if verbose:
-                        print(self.board)
-                        print(state, winner)
                     break
-
         return (state, winner, winning_fields)

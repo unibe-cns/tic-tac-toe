@@ -1,13 +1,14 @@
 import collections
 import copy
 import json
-import numpy as np
 import time
+
+import numpy as np
 
 from game import Board
 
 
-class Agent:
+class QLearningAgent:
 
     action_idx_to_move = {
         row * 3 + col: (row, col) for row in range(3) for col in range(3)
@@ -25,7 +26,7 @@ class Agent:
         self.rng = np.random.default_rng(self.seed)
 
     def clone(self):
-        agent = Agent(
+        agent = QLearningAgent(
             seed=self.seed + 5678,
             epsilon=self.epsilon,
             alpha=self.alpha,
@@ -34,7 +35,7 @@ class Agent:
         agent.policy = copy.deepcopy(self.policy)
         return agent
 
-    def get_move(self, board, marker):
+    def get_move(self, _ui, board, marker):
         p = self.rng.uniform()
         if p < self.epsilon:
             move = self.random_move(board)
@@ -54,7 +55,6 @@ class Agent:
 
     def load_policy(self, fn):
         with open(fn, "r") as f:
-            print(f"Loading policy {f.name}")
             policy = json.load(f)
         self.reset_policy()
         for str_marker in policy:
@@ -73,10 +73,10 @@ class Agent:
         for row in range(3):
             for col in range(3):
                 if not board.is_empty(row, col):
-                    action_idx = Agent.move_to_action_idx[(row, col)]
+                    action_idx = QLearningAgent.move_to_action_idx[(row, col)]
                     values[action_idx] = -np.inf
 
-        # make sure to evenly sample all state with same value
+        # make sure to evenly sample all states with same value
         max_value = np.max(values)
         if sum(values == max_value) == 1:
             action_idx = np.argmax(values)
@@ -86,7 +86,7 @@ class Agent:
             probs /= np.sum(probs)
             action_idx = self.rng.choice(range(9), p=probs)
 
-        move = Agent.action_idx_to_move[action_idx]
+        move = QLearningAgent.action_idx_to_move[action_idx]
         return move
 
     def random_move(self, board):
@@ -132,7 +132,7 @@ class Agent:
                     continue
                 considered_keys.add(rotated_key)
 
-                action_idx = Agent.move_to_action_idx[rotated_move]
+                action_idx = QLearningAgent.move_to_action_idx[rotated_move]
                 if t == (T - 1):
                     r = final_reward
                     max_Q = 0.0

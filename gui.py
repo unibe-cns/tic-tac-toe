@@ -1,75 +1,35 @@
-import numpy as np
-
-from agent import Agent
-from game import Game
-from board import Board
+import base64
+import time
+from io import BytesIO
 
 import PySimpleGUI as sg
-from img import icons
-import base64
-from io import BytesIO
 from PIL import Image
-import time
 
-from duel import duel
+from board import Board
+from img import icons
 from lang import lang_DE
+import warnings
 
 LANG_DICT = lang_DE
 
 
-class Gui:
-    def update_game_state(self, board, winning_fields=None):
-        # print("received board:", board)
-        self.board = board
-        for row in range(3):
-            for col in range(3):
-                label = Board.field_state_to_str_map[self.board[row][col]]
+class GUI:
+    def __init__(self):
+        self.create_blank_icon()
 
-                if label == "_":
-                    icon = icons.blank
-                elif label == "x":
-                    if winning_fields and (row, col) in winning_fields:
-                        icon = icons.x_inv
-                    else:
-                        icon = icons.x
-                elif label == "o":
-                    if winning_fields and (row, col) in winning_fields:
-                        icon = icons.o_inv
-                    else:
-                        icon = icons.o
-                self.window[(row, col)].update(image_data=icon)
-        self.window.Refresh()
+        sg.theme("Black")  # Keep things interesting for your users
+        sg.set_options(font=("DejaVu Sans Mono", 54))
 
-    def blink(self, board, winning_fields):
-        for i in range(2):
-            self.update_game_state(board, winning_fields=winning_fields)
-            time.sleep(0.3)
-            self.update_game_state(board, winning_fields=None)
-            time.sleep(0.3)
-        self.update_game_state(board, winning_fields=winning_fields)
+        layout = self.create_layout()
 
-    def update_top_message(self, message):
-        if message in ["new_game", "bot_wins", "player_wins", "draw"]:
-            message = LANG_DICT[message]
-        self.window["-HEAD_TEXT-"].update(message)
-        self.window.Refresh()
+        self.window = sg.Window(
+            "Tic Tac Toe", layout, margins=(0, 0), background_color="#000",
+        )
+        self.window.Read(timeout=0.001)
+        self.show_new_game()
 
-    def update_level_text(self, level):
-        self.level = level
-        self.window["-LEVEL_TEXT-"].update(LANG_DICT["level"] + " " + f"{level:.1f}")
-        self.window.Refresh()
-
-    def listen_input(self):
-        event, values = self.window.Read()
-        # print(event, values)
-        return event
-
-    def write(self, message):
-        print(message)
-        self.update_top_message(message)
-
-    def gui_duel(self, agent, opponent, no_episodes, rng, *, verbose=False):
-
+    @staticmethod
+    def create_blank_icon():
         buffer = BytesIO(base64.b64decode(icons.o))
         width, height = Image.open(buffer).size
 
@@ -80,9 +40,8 @@ class Gui:
             icons.blank.save(output, format="PNG")
             icons.blank = output.getvalue()
 
-        sg.theme("Black")  # Keep things interesting for your users
-        sg.set_options(font=("DejaVu Sans Mono", 54))
-
+    @staticmethod
+    def create_layout():
         game_column = [
             [
                 sg.Button(
@@ -98,68 +57,96 @@ class Gui:
             for j in range(3)
         ]
 
-        self.level = 0.1
-        level_str = LANG_DICT["level"] + " " + str(self.level)
-        head_str = LANG_DICT["new_game"]
-
         score_column = [
-            [sg.Text(head_str, size=(len(head_str) + 5, 1), key="-HEAD_TEXT-")],
-            [sg.Text("")],
-            [sg.Image("img/bot.png")],
-            [sg.Text(level_str, size=(len(level_str), 1), key="-LEVEL_TEXT-")],
+            [sg.Text("title str", size=(20, 1), key="-TITLE_TEXT-")],
+            [sg.Text("subtitle str", size=(20, 1), key="-SUBTITLE_TEXT-")],
+            [
+                sg.Text(
+                    "", size=(25, 3), font=("DejaVu Sans Mono", 28), key="-WARN_TEXT-"
+                )
+            ],
+            [sg.Image("", key="-PLAYER0_IMG-")],
+            [
+                sg.Text("0", size=(20, 1), key="-PLAYER0_TEXT-"),
+                sg.Text("", size=(5, 1), key="-PLAYER0_SCORE-"),
+            ],
+            [sg.Image("", key="-PLAYER1_IMG-")],
+            [
+                sg.Text("0", size=(20, 1), key="-PLAYER1_TEXT-"),
+                sg.Text("", size=(5, 1), key="-PLAYER1_SCORE-"),
+            ],
         ]
 
-        self.layout = [
-            [sg.Column(game_column), sg.Column(score_column, justification="center"),]
+        return [
+            [sg.Column(game_column), sg.Column(score_column, justification="center")]
         ]
 
-        self.window = sg.Window(
-            LANG_DICT["game_title"],
-            self.layout,
-            margins=(0, 0),
-            background_color="#000",
-        )
+    def show_board(self, board, winning_fields=None):
+        for row in range(3):
+            for col in range(3):
+                label = Board.field_state_to_str_map[board[row][col]]
+                if label == "_":
+                    icon = icons.blank
+                elif label == "x":
+                    if winning_fields and (row, col) in winning_fields:
+                        icon = icons.x_inv
+                    else:
+                        icon = icons.x
+                elif label == "o":
+                    if winning_fields and (row, col) in winning_fields:
+                        icon = icons.o_inv
+                    else:
+                        icon = icons.o
+                self.window[(row, col)].update(image_data=icon)
+        self.window.Refresh()
 
-        # a modified version of main.duel with GUI implementation
-        history_result = []
-        while True:  # Event Loop
+    def show_new_game(self):
+        self.write("New game", "-TITLE_TEXT-")
+        self.write("", "-SUBTITLE_TEXT-")
 
-            # if game is not None:
-            #     HEAD_TEXT = 'NEW TITLE'
+    def blink(self, board, winning_fields):
+        for i in range(2):
+            self.show_board(board, winning_fields=winning_fields)
+            time.sleep(0.3)
+            self.show_board(board, winning_fields=None)
+            time.sleep(0.3)
+        self.show_board(board, winning_fields=winning_fields)
 
-            event, values = self.window.Read(timeout=1)
-            # self.window['-HEAD_TEXT-'].update('Neues Spiel')
+    def listen_input(self, _):
+        event, values = self.window.Read()
+        self.warn("")
+        return event
 
-            _ = duel(
-                agent, opponent, no_episodes, rng, verbose=verbose, print_file=self
-            )
+    def show_scores(self, scores):
+        self.write(str(scores[0]), "-PLAYER0_SCORE-")
+        self.write(str(scores[1]), "-PLAYER1_SCORE-")
 
-            # (state, winner) = game.play(verbose)
+    def show_final_state(self, board, state, winner, winning_fields):
+        if winner is not None:
+            winner_str = board.field_state_to_str_map[winner]
+            self.write("Winner: " + winner_str, "-TITLE_TEXT-")
+            self.write("", "-SUBTITLE_TEXT-")
+            self.blink(board, winning_fields)
+        else:
+            self.write("Draw", "-TITLE_TEXT-")
+            self.write("", "-SUBTITLE_TEXT-")
+            self.show_board(board)
 
-            # if event in (None, 'Exit'):
-            #     break
-            # if callable(event):
-            #     event()
-            # window['-HEAD_TEXT-'].update(HEAD_TEXT)
+    def show_image(self, fn, key):
+        self.window[key].update(fn)
+        self.window.Refresh()
 
-        window.close()
+    def warn(self, text):
+        self.write(text, "-WARN_TEXT-", text_color="#ff0000")
 
-        # if state == Game.GameState.DRAW:
-        #     history_result.append(0.0)
-        #     for p in game.players:
-        #         final_reward = 0.0
-        #         p.update_policy(final_reward)
-        # else:
-        #     if winner == game.assigned_markers[0]:
-        #         history_result.append(1.0)
-        #     else:
-        #         history_result.append(-1.0)
-        #     for p in game.players:
-        #         if winner == p.marker:
-        #             final_reward = 1.0
-        #         else:
-        #             final_reward = -1.0
-        #         p.update_policy(final_reward)
+    def write(self, text, key, *, text_color="#ffffff"):
+        if text in LANG_DICT:
+            text = LANG_DICT[text]
+        else:
+            warnings.warn(f"Translation for {text} not found.", RuntimeWarning)
+        self.window[key].update(text, text_color=text_color)
+        self.window.Refresh()
 
-        # if episode > 0 and episode % 1000 == 0:
-        #     print(episode)
+    def __del__(self):
+        if self.window:
+            self.window.close()
