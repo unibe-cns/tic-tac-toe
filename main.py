@@ -11,9 +11,12 @@ from ui_agent import UIAgent
 def main():
     q_learning_agent_params = {
         "seed": 1234,
-        "epsilon": 0.25,
-        "alpha": 0.5,
-        "gamma": 0.95,
+        # "epsilon": 0.25,
+        # "alpha": 0.5,
+        # "gamma": 0.95,
+        "epsilon": 0.1,
+        "alpha": 0.25,
+        "gamma": 0.999,
     }
     # save_after_episodes = [0, 100, 350, 1_000, 10_000]
     save_after_episodes = [0, 200, 400, 800, 1600, 3200, 6400, 12800, 25600]
