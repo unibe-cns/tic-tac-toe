@@ -21,7 +21,8 @@ def duel(ui, agent0, agent1, n_episodes, rng):
 
 def duel_with_training(ui, agent0, agent1, n_episodes, rng):
     history_result = []
-    for _episode in range(n_episodes):
+    for episode in range(n_episodes):
+        agent0.epsilon = 1.0 - 0.9 * episode / n_episodes
         game = Game(ui, agent0, agent1, rng)
         (state, winner, winning_fields) = game.play()
 
