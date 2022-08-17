@@ -1,14 +1,15 @@
 import base64
 import time
+import warnings
 from io import BytesIO
 
+import numpy as np
 import PySimpleGUI as sg
 from PIL import Image
 
 from board import Board
 from img import icons
 from lang import lang_DE
-import warnings
 
 LANG_DICT = lang_DE
 
@@ -134,6 +135,32 @@ class GUI:
 
     def show_image(self, fn, key):
         self.window[key].update(fn)
+        self.window.Refresh()
+
+    def show_policy(self, values):
+        values = np.array(values)
+        finite_indices = np.isfinite(values)
+        values[finite_indices] -= np.mean(values[finite_indices])
+        max_scale = max(
+            abs(np.min(values[finite_indices])), np.max(values[finite_indices])
+        )
+        if max_scale > 0.0:
+            values[finite_indices] /= max_scale
+        values[~finite_indices] = 0.0
+
+        for row in range(3):
+            for col in range(3):
+                q = values[row * 3 + col]
+                if q > 0.0:
+                    color = f"#00{int(q * 255):02x}00"
+                else:
+                    color = f"#{int(-q * 255):02x}0000"
+                self.window[(row, col)].update(button_color=color)
+        self.window.Refresh()
+        time.sleep(2)
+        for row in range(3):
+            for col in range(3):
+                self.window[(row, col)].update(button_color="#ffffff")
         self.window.Refresh()
 
     def warn(self, text):

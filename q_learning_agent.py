@@ -17,7 +17,6 @@ class QLearningAgent:
     move_to_action_idx = {value: key for key, value in action_idx_to_move.items()}
 
     def __init__(self, *, seed, epsilon, alpha, gamma, gui=None):
-        self.gui = gui
         self.seed = seed
         self.epsilon = epsilon
         self.alpha = alpha
@@ -35,17 +34,14 @@ class QLearningAgent:
         agent.policy = copy.deepcopy(self.policy)
         return agent
 
-    def get_move(self, _ui, board, marker):
+    def get_move(self, ui, board, marker):
+        ui.show_board(board)
         p = self.rng.uniform()
         if p < self.epsilon:
             move = self.random_move(board)
         else:
-            move = self.policy_move(board, marker)
+            move = self.policy_move(ui, board, marker)
         assert board.is_empty(move[0], move[1])
-
-        if self.gui is not None:
-            self.gui.update_game_state(board)
-            time.sleep(0.1)
         return move
 
     def n_boards_seen(self):
@@ -64,7 +60,7 @@ class QLearningAgent:
                 )
         return True
 
-    def policy_move(self, board, marker):
+    def policy_move(self, ui, board, marker):
         key = board.to_str()
 
         values = self.policy[marker][key].copy()
@@ -75,6 +71,8 @@ class QLearningAgent:
                 if not board.is_empty(row, col):
                     action_idx = QLearningAgent.move_to_action_idx[(row, col)]
                     values[action_idx] = -np.inf
+
+        ui.show_policy(values)
 
         # make sure to evenly sample all states with same value
         max_value = np.max(values)
