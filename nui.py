@@ -7,6 +7,9 @@ class NUI:
     def listen_input(marker):
         assert False
 
+    def show_policy(self, values):
+        pass
+
     @staticmethod
     def warn(msg):
         pass
