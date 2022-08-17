@@ -51,28 +51,36 @@ def duel_manual_against_improving_agent(ui, agent0, agent1, policies, rng):
     ui.write("You", "-PLAYER0_TEXT-")
     ui.show_image("./img/bot.png", "-PLAYER1_IMG-")
     level = 0
+    agent1.load_policy(policies[level])
     while True:
         if level == 0:
             ui.show_new_game()
         else:
             ui.write("", "-TITLE_TEXT-")
-        agent1.load_policy(policies[level])
         ui.write(f"Bot v{level + 1:.1f}", "-PLAYER1_TEXT-")
         game = Game(ui, agent0, agent1, rng)
         (state, winner, winning_fields) = game.play()
         if winner is not None:
             if winner == game.assigned_markers[0]:
                 scores[0] += 1
-                level = min(level + 1, len(policies) - 1)
+                # either load pretrained policy or improve upon best one
+                if level < len(policies) - 1:
+                    level += 1
+                    agent1.load_policy(policies[level])
+                else:
+                    for p in game.players:
+                        if p.marker == game.assigned_markers[1]:
+                            print("training")
+                            final_reward = -1.0
+                            p.update_policy(final_reward)
             else:
                 scores = [0, 0]
                 level = 0
+                agent1.load_policy(policies[level])
         ui.show_scores(scores)
         ui.show_final_state(game.board, state, winner, winning_fields)
         time.sleep(2.0)
         if winner == game.assigned_markers[1]:
             ui.warn("You lost. End of game.")
-            # ui.write("", "-PLAYER0_SCORE-")
-            # ui.write("", "-PLAYER1_SCORE-")
             time.sleep(5.0)
             ui.warn("")

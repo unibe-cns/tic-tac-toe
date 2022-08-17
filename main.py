@@ -26,6 +26,7 @@ def main():
     print(policies)
     agent1 = QLearningAgent(**q_learning_agent_params)
     agent1.epsilon = 0.0
+    agent1.alpha = 0.0  # set to non-zero value to enable plasticity during play
 
     rng = np.random.default_rng(1234)
     # # ui = TUI()
