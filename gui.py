@@ -83,6 +83,9 @@ class GUI:
         ]
 
     def show_board(self, board, winning_fields=None):
+        # to read out old inputs
+        event, values = self.window.Read(timeout=0.001)
+
         for row in range(3):
             for col in range(3):
                 label = Board.field_state_to_str_map[board[row][col]]
