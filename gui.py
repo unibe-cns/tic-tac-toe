@@ -151,7 +151,9 @@ class GUI:
         for row in range(3):
             for col in range(3):
                 q = values[row * 3 + col]
-                if q > 0.0:
+                if abs(q) < 1e-2:
+                    color = "#999999"
+                elif q > 0:
                     color = f"#00{int(q * 255):02x}00"
                 else:
                     color = f"#{int(-q * 255):02x}0000"
