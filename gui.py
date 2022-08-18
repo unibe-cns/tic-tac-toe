@@ -36,12 +36,10 @@ class GUI:
         self.window.Read(timeout=0.001)
         self.show_new_game()
 
-    def create_blank_icon(self):
+    @staticmethod
+    def create_blank_icon():
         buffer = BytesIO(base64.b64decode(icons.o))
         width, height = Image.open(buffer).size
-        print(width, height)
-        self.button_width = int(width * scaling)
-        self.button_height = int(height * scaling)
 
         # Create a blank image
         icons.blank = Image.new("RGBA", (width, height), "#ffffff00")
