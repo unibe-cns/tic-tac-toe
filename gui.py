@@ -14,8 +14,12 @@ from lang import lang_DE
 LANG_DICT = lang_DE
 
 
-scaling = 0.5
-subsample = int(1 / scaling)
+# to have same behaviour as before, the default is None
+# for scaling behaviour set this value to a float value, ideally 1. / n
+scaling = None
+
+# if scaling is None, subsample will be as well and disregarded in the calls
+subsample = int(1 / scaling) if scaling is not None else None
 
 
 class GUI:
