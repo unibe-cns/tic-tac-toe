@@ -14,12 +14,23 @@ from lang import lang_DE
 LANG_DICT = lang_DE
 
 
+# to have same behaviour as before, the default is None
+# for scaling behaviour set this value to a float value, ideally 1. / n
+scaling = None
+
+# if scaling is None, subsample will be as well and disregarded in the calls
+subsample = int(1 / scaling) if scaling is not None else None
+
+
 class GUI:
     def __init__(self):
         self.create_blank_icon()
 
         sg.theme("Black")  # Keep things interesting for your users
-        sg.set_options(font=("DejaVu Sans Mono", 54))
+        sg.set_options(
+            font=("DejaVu Sans Mono", 54),
+            scaling=scaling
+        )
 
         layout = self.create_layout()
 
@@ -41,13 +52,13 @@ class GUI:
             icons.blank.save(output, format="PNG")
             icons.blank = output.getvalue()
 
-    @staticmethod
-    def create_layout():
+    def create_layout(self):
         game_column = [
             [
                 sg.Button(
                     "",
                     image_data=icons.blank,
+                    image_subsample=subsample,
                     key=(j, i),
                     metadata=False,
                     pad=(10, 10),
@@ -101,7 +112,9 @@ class GUI:
                         icon = icons.o_inv
                     else:
                         icon = icons.o
-                self.window[(row, col)].update(image_data=icon)
+                self.window[(row, col)].update(
+                    image_subsample=subsample,
+                    image_data=icon)
         self.window.Refresh()
 
     def show_new_game(self):
@@ -137,7 +150,7 @@ class GUI:
             self.show_board(board)
 
     def show_image(self, fn, key):
-        self.window[key].update(fn)
+        self.window[key].update(fn, subsample=subsample)
         self.window.Refresh()
 
     def show_policy(self, values):
