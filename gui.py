@@ -36,6 +36,7 @@ class GUI:
 
         self.window = sg.Window(
             "Tic Tac Toe", layout, margins=(0, 0), background_color="#000",
+            no_titlebar=True, location=(0,0), size=(1920,1080)
         )
         self.window.Read(timeout=0.001)
         self.show_new_game()
@@ -68,6 +69,8 @@ class GUI:
             ]
             for j in range(3)
         ]
+                
+        expand_column = [[sg.Text("", size=(2, 1), key="-EXPAND-"),],]
 
         score_column = [
             [sg.Text("title str", size=(20, 1), key="-TITLE_TEXT-")],
@@ -79,18 +82,19 @@ class GUI:
             ],
             [sg.Image("", key="-PLAYER0_IMG-")],
             [
-                sg.Text("0", size=(20, 1), key="-PLAYER0_TEXT-"),
+                sg.Text("0", size=(10, 1), key="-PLAYER0_TEXT-"),
                 sg.Text("", size=(5, 1), key="-PLAYER0_SCORE-"),
             ],
+            [sg.Text("", size=(1, 1), key="-EXPAND-"),],
             [sg.Image("", key="-PLAYER1_IMG-")],
             [
-                sg.Text("0", size=(20, 1), key="-PLAYER1_TEXT-"),
+                sg.Text("0", size=(10, 1), key="-PLAYER1_TEXT-"),
                 sg.Text("", size=(5, 1), key="-PLAYER1_SCORE-"),
             ],
         ]
 
-        return [
-            [sg.Column(game_column), sg.Column(score_column, justification="center")]
+        return [[sg.Text(key='-EXPAND-', font='ANY 1', pad=(0, 0))],
+            [sg.Column(game_column), sg.Column(expand_column), sg.Column(score_column, vertical_alignment='center', justification="center")]
         ]
 
     def show_board(self, board, winning_fields=None):

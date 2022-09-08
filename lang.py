@@ -1,8 +1,10 @@
 lang_DE = {
     "New game": "Neues Spiel",
     "You": "Du",
-    "Winner: o": "Gewinner: o",
-    "Winner: x": "Gewinner: x",
+    "YOU (x)": "Du (" + u"\u2715" + ")",
+    "YOU (o)": "Du (" + u"\u25EF" + ")",
+    "Winner: o": "Gewinner: " + u"\u25EF",
+    "Winner: x": "Gewinner: " + u"\u2715",
     "Draw": "Unentschieden",
     "Bot v1.0": "Bot v1.0",
     "Bot v2.0": "Bot v2.0",
