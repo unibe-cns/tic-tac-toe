@@ -50,11 +50,11 @@ def duel_manual_against_improving_agent(ui, agent0, agent1, policies, rng):
     scores = [0, 0]
     ui.show_scores(scores)
     ui.write("You", "-PLAYER0_TEXT-")
-    ui.show_image(level_bot_images(1, len(policies)), "-PLAYER1_IMG-")
+    ui.show_image(level_bot_images(1), "-PLAYER1_IMG-")
     level = 0
     agent1.load_policy(policies[level])
     while True:
-        ui.show_image(level_bot_images(level+1, len(policies)), "-PLAYER1_IMG-")
+        ui.show_image(level_bot_images(level+1), "-PLAYER1_IMG-")
         if level == 0:
             ui.show_new_game()
         else:
@@ -87,12 +87,6 @@ def duel_manual_against_improving_agent(ui, agent0, agent1, policies, rng):
             time.sleep(5.0)
             ui.warn("")
             
-def level_bot_images(level, n_policies):
-    if level <= n_policies:
-        if level == 1:
-            return "./img/bot1.png"
-        elif level % 2 == 0:
-            return "./img/bot" + str(level) + ".png"
-        else:
-            return "./img/bot" + str(level-1) + ".png"
+def level_bot_images(level):
+     return "./img/bot" + str(min(level//2+1, 5)) + ".png"
 
