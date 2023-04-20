@@ -19,6 +19,7 @@ To start a game against an agent trained via self-play, open the folder of the g
 Play a game by clicking (or tapping, on touch devices) on a free field.
 The bot starts on the easiest level with no experience.
 After every time the player wins against the bot, the difficulty is increased by loading a bot that has trained for longer.
+If the bot wins, the game is reset.
 
 # Notes
 
