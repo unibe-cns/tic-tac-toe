@@ -9,6 +9,10 @@ To download, open a terminal and run
 https://github.com/unibe-cns/tic-tac-toe
 ```
 or download the zip (top right -> Code -> Download ZIP) and unpack.
+You need a properly set-up python environment with the needed packages installed, for this execute in an environment
+```
+pip install -r requirements.txt
+```
 
 # Starting a game
 

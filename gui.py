@@ -4,7 +4,7 @@ import warnings
 from io import BytesIO
 
 import numpy as np
-import PySimpleGUI as sg
+import FreeSimpleGUI as sg
 from PIL import Image
 
 from board import Board
