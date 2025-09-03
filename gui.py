@@ -1,11 +1,11 @@
 import base64
 import time
-import warnings
 from io import BytesIO
 
 import numpy as np
 import FreeSimpleGUI as sg
 from PIL import Image
+from matplotlib.colors import LinearSegmentedColormap
 
 from board import Board
 from img import icons
@@ -36,7 +36,7 @@ class GUI:
 
         self.window = sg.Window(
             "Tic Tac Toe", layout, margins=(0, 0), background_color="#000",
-            no_titlebar=True, location=(0,0), size=(1920,1080)
+            grab_anywhere=True, resizable=True
         )
         self.window.Read(timeout=0.001)
         self.show_new_game()
@@ -63,7 +63,7 @@ class GUI:
                     key=(j, i),
                     metadata=False,
                     pad=(10, 10),
-                    mouseover_colors="white",
+                    # mouseover_colors="white",
                 )
                 for i in range(3)
             ]
@@ -72,9 +72,10 @@ class GUI:
                 
         expand_column = [[sg.Text("", size=(2, 1), key="-EXPAND-"),],]
 
+        font_size = int(40 * (scaling if scaling is not None else 1.0))
         score_column = [
-            [sg.Text("title str", size=(20, 1), key="-TITLE_TEXT-")],
-            [sg.Text("subtitle str", size=(20, 1), key="-SUBTITLE_TEXT-")],
+            [sg.Text("title str", size=(20, 1), font=("DejaVu Sans Mono", font_size), key="-TITLE_TEXT-")],
+            [sg.Text("subtitle str", size=(20, 1), font=("DejaVu Sans Mono", font_size), key="-SUBTITLE_TEXT-")],
             [
                 sg.Text(
                     "", size=(25, 3), font=("DejaVu Sans Mono", 28), key="-WARN_TEXT-"
@@ -82,19 +83,26 @@ class GUI:
             ],
             [sg.Image("", key="-PLAYER0_IMG-")],
             [
-                sg.Text("0", size=(10, 1), key="-PLAYER0_TEXT-"),
-                sg.Text("", size=(5, 1), key="-PLAYER0_SCORE-"),
+                sg.Text("0", size=(10, 1), font=("DejaVu Sans Mono", font_size), key="-PLAYER0_TEXT-"),
+                sg.Text("", size=(5, 1), font=("DejaVu Sans Mono", font_size), key="-PLAYER0_SCORE-"),
             ],
             [sg.Text("", size=(1, 1), key="-EXPAND-"),],
             [sg.Image("", key="-PLAYER1_IMG-")],
             [
-                sg.Text("0", size=(10, 1), key="-PLAYER1_TEXT-"),
-                sg.Text("", size=(5, 1), key="-PLAYER1_SCORE-"),
+                sg.Text("0", size=(10, 1), font=("DejaVu Sans Mono", font_size), key="-PLAYER1_TEXT-"),
+                sg.Text("", size=(5, 1), font=("DejaVu Sans Mono", font_size), key="-PLAYER1_SCORE-"),
             ],
         ]
 
-        return [[sg.Text(key='-EXPAND-', font='ANY 1', pad=(0, 0))],
-            [sg.Column(game_column), sg.Column(expand_column), sg.Column(score_column, vertical_alignment='center', justification="center")]
+        return [
+            [
+                sg.Text(key='-EXPAND-', font='ANY 1', pad=(0, 0))
+            ],
+            [
+                sg.Column(game_column),
+                sg.Column(expand_column),
+                sg.Column(score_column, vertical_alignment='center', justification="center")
+            ]
         ]
 
     def show_board(self, board, winning_fields=None):
@@ -171,12 +179,15 @@ class GUI:
         for row in range(3):
             for col in range(3):
                 q = values[row * 3 + col]
-                if abs(q) < 1e-2:
-                    color = "#999999"
-                elif q > 0:
-                    color = f"#00{int(q * 255):02x}00"
-                else:
-                    color = f"#{int(-q * 255):02x}0000"
+                cmap = LinearSegmentedColormap.from_list('rg', ["r", "gray", "g"], N=256)
+                color = cmap(0.5 + q / 2)  # normalize to [0, 1]
+                color = '#%02x%02x%02x' % tuple(int(c * 255) for c in color[:3])
+                # if abs(q) < 1e-2:
+                #     color = "#808080"
+                # elif q > 0:
+                #     color = f"#00{int(q * 255) // 2:02x}00"
+                # else:
+                #     color = f"#{int(-q * 255) // 2:02x}0000"
                 self.window[(row, col)].update(button_color=color)
         self.window.Refresh()
         time.sleep(2)
@@ -191,8 +202,8 @@ class GUI:
     def write(self, text, key, *, text_color="#ffffff"):
         if text in LANG_DICT:
             text = LANG_DICT[text]
-        else:
-            warnings.warn(f"Translation for {text} not found.", RuntimeWarning)
+        # else:
+        #     warnings.warn(f"Translation for {text} not found.", RuntimeWarning)
         self.window[key].update(text, text_color=text_color)
         self.window.Refresh()
 
