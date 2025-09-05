@@ -103,7 +103,14 @@ class Game:
                     if move is None:
                         self.ui.warn("Invalid move. Must be of the form `<row>,<col>`.")
                         continue
-                    row, col = move
+                    if move == "-NEW_GAME-":
+                        return Game.GameState.WIN, self.assigned_markers[1], None
+
+                    try:
+                        row, col = move
+                    except ValueError:
+                        print(move)
+                        exit()
                     if row < 0 or row > 2:
                         self.ui.warn("Invalid move. Row must be in [0, 2].")
                         continue

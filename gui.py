@@ -74,7 +74,7 @@ class GUI:
 
         font_size = int(40 * (scaling if scaling is not None else 1.0))
         score_column = [
-            [sg.Text("title str", size=(20, 1), font=("DejaVu Sans Mono", font_size), key="-TITLE_TEXT-")],
+            [sg.Button("Restart", key="-NEW_GAME-", pad=(10, 10))],
             [sg.Text("subtitle str", size=(20, 1), font=("DejaVu Sans Mono", font_size), key="-SUBTITLE_TEXT-")],
             [
                 sg.Text(
@@ -130,8 +130,8 @@ class GUI:
         self.window.Refresh()
 
     def show_new_game(self):
-        self.write("New game", "-TITLE_TEXT-")
         self.write("", "-SUBTITLE_TEXT-")
+        self.write("", "-WARN_TEXT-")
 
     def blink(self, board, winning_fields):
         for i in range(2):
@@ -153,12 +153,11 @@ class GUI:
     def show_final_state(self, board, state, winner, winning_fields):
         if winner is not None:
             winner_str = board.field_state_to_str_map[winner]
-            self.write("Winner: " + winner_str, "-TITLE_TEXT-")
-            self.write("", "-SUBTITLE_TEXT-")
-            self.blink(board, winning_fields)
+            self.write("Winner: " + winner_str, "-SUBTITLE_TEXT-")
+            if winning_fields:
+                self.blink(board, winning_fields)
         else:
-            self.write("Draw", "-TITLE_TEXT-")
-            self.write("", "-SUBTITLE_TEXT-")
+            self.write("Draw", "-SUBTITLE_TEXT-")
             self.show_board(board)
 
     def show_image(self, fn, key):
